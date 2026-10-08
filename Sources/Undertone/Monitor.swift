@@ -1,0 +1,629 @@
+import AppKit
+import CoreGraphics
+import UndertoneCore
+import Foundation
+import OSLog
+import ScreenCaptureKit
+
+private let log = Logger(subsystem: "io.github.undertone", category: "monitor")
+
+/// 截图 → OCR → 解析消息 → 发现对方新消息 → 分析。整个循环跑在主 actor 上，重活放到后台。
+@MainActor
+final class Monitor: ObservableObject {
+    enum Status: Equatable {
+        case paused, watching, noWindow(chosen: Bool), windowHidden(String), needsPermission, failed(String)
+
+        var text: String {
+            switch self {
+            case .paused: L("已暂停", "Paused")
+            case .watching: L("正在看聊天窗口", "Watching the chat window")
+            case .noWindow(let chosen): chosen ? L("选定的窗口不见了，请在设置里重新选", "The chosen window is gone — pick it again in Settings")
+                : L("没找到聊天窗口：先打开聊天软件，或在设置里选一个窗口", "No chat window found: open your messaging app, or pick a window in Settings")
+            case .windowHidden(let name): L("\(name) 被最小化了，点程序坞把它恢复", "\(name) is minimized — click it in the Dock to bring it back")
+            case .needsPermission: L("需要屏幕录制权限", "Screen Recording permission needed")
+            case .failed(let message): message
+            }
+        }
+    }
+
+    @Published private(set) var status: Status = .paused
+    @Published private(set) var reports: [EmotionReport] = []
+    @Published private(set) var analyzing = false
+    @Published private(set) var analysisError: String?
+    @Published private(set) var preview: CGImage?
+    @Published private(set) var windowName = ""
+    /// 对方最新一条是还没转文字的语音（秒数，读不出时长时为 0）。转成文字之前没有内容可分析。
+    @Published private(set) var pendingVoice: Int?
+    /// 用 deAPI 听语音的进度。
+    enum ListenState: Equatable { case idle, recording(limit: Int), transcribing }
+    @Published private(set) var listenState: ListenState = .idle
+    private var listener: VoiceListener?
+    private var listenTimeout: Task<Void, Never>?
+    /// 本地模型的状态：是否正在启动，以及启动结果。
+    @Published private(set) var startingOllama = false
+    @Published private(set) var ollamaStatus: OllamaLauncher.Status?
+
+    let settings: AppSettings
+    let memory: ContactMemoryStore
+    /// 从标题栏认出来的对方名字；换聊天时会变。
+    @Published private(set) var detectedContact: String?
+    /// 用户手动设置的名字，只对当前这个聊天有效。
+    @Published var manualContact: String?
+    /// 手动模式里粘贴的聊天记录（录演示视频时由脚本填入）。
+    @Published var manualTranscript = ""
+    /// 「发之前看看」：用户要发的英文草稿和检查结果。
+    @Published var draft = ""
+    @Published private(set) var draftReview: DraftReview?
+    @Published private(set) var checkingDraft = false
+    @Published private(set) var draftError: String?
+    /// 记忆有改动时加一，让界面刷新。
+    @Published private(set) var memoryVersion = 0
+    private var tracker = MessageTracker()
+    private var loop: Task<Void, Never>?
+    private var signature: FrameSignature?
+    /// images：消息里有表情、表情包时的截图（表情一个一张），先交给模型看懂再分析。
+    private typealias Job = (context: [ChatMessage], latest: ChatMessage, contact: String?, images: [CGImage])
+    private var pending: Job?
+    private var failed: Job?
+    private var previewRunning = false
+    private var analyzedKeys: [String] = []
+    /// 看过的表情图 → 名字或描述。同一个表情、表情包常被反复发，不用每次都问模型。
+    private var descriptions: [String: String] = [:]
+    /// 这个模型不能看图（Ollama 查到的能力，或者云端返回了错误），这次运行里不再尝试。
+    private var noVision: Set<String> = []
+    private var ollamaChecked = false
+    private var ollamaRetried = false
+    private var warmedUp = false
+    /// 找到的窗口先缓存 10 秒：列举全部窗口比截一张图还贵，没必要每 1.5 秒做一次。
+    private var cachedWindow: SCWindow?
+    private var cachedAt = Date.distantPast
+    /// 屏幕睡眠、锁屏或切换用户时暂停截屏。
+    private var suspended = false
+    private var observers: [NSObjectProtocol] = []
+    /// 被监控窗口自己的应用名和标题（识别联系人时排除）。
+    private var windowTitles: [String] = []
+
+    init(settings: AppSettings, memory: ContactMemoryStore = ContactMemoryStore()) {
+        self.settings = settings
+        self.memory = memory
+        let center = NSWorkspace.shared.notificationCenter
+        for (name, value) in [(NSWorkspace.screensDidSleepNotification, true), (NSWorkspace.sessionDidResignActiveNotification, true),
+                              (NSWorkspace.screensDidWakeNotification, false), (NSWorkspace.sessionDidBecomeActiveNotification, false)] {
+            observers.append(center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.suspended = value }
+            })
+        }
+    }
+
+    /// 下一次截屏前等多久：找不到窗口、没权限、屏幕睡着时放慢，省电。
+    private var nextDelay: Double {
+        let base = max(0.5, settings.interval)
+        switch status {
+        case .watching: return suspended ? 5 : base
+        default: return max(base, 4)
+        }
+    }
+
+    var currentContact: String? { manualContact ?? detectedContact }
+
+    // MARK: - 联系人记忆
+
+    func contactMemory(_ name: String) -> ContactMemory { memory.memory(for: name) }
+
+    func editMemory(_ name: String, _ change: (inout ContactMemory) -> Void) {
+        memory.update(name, change)
+        memoryVersion += 1
+    }
+
+    /// 用户确认记住 AI 建议的事。
+    func remember(_ text: String, for name: String, source: ContactMemory.Note.Source = .ai) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        editMemory(name) { $0.notes.append(.init(text: trimmed, source: source)) }
+    }
+
+    func forget(_ name: String) {
+        memory.forget(name)
+        memoryVersion += 1
+    }
+
+    func forgetAll() {
+        memory.forgetAll()
+        memoryVersion += 1
+    }
+
+    /// 当前聊天对象的关系：先看联系人记忆里设的，没有就用面板上的全局选择。
+    func relationship(for contact: String?) -> String {
+        contact.flatMap { memory.memory(for: $0).relationship } ?? settings.relationship
+    }
+
+    var isRunning: Bool { loop != nil || previewRunning }
+
+    /// 新手引导用：窗口是否就绪，以及没就绪时的短提示。
+    var windowFound: Bool {
+        switch status {
+        case .noWindow, .windowHidden, .needsPermission: false
+        default: !windowName.isEmpty
+        }
+    }
+
+    var windowHint: String {
+        switch status {
+        case .noWindow: L("没找到", "Not found")
+        case .windowHidden: L("被最小化了", "Minimized")
+        default: L("查找中", "Looking…")
+        }
+    }
+    var canRetry: Bool { failed != nil && !analyzing }
+
+    /// 重新分析上一条失败的消息。
+    func retry() {
+        guard let job = failed else { return }
+        failed = nil
+        analysisError = nil
+        pending = job
+        Task { await drain() }
+    }
+
+    func start() {
+        guard loop == nil else { return }
+        if !CGPreflightScreenCaptureAccess() {
+            CGRequestScreenCaptureAccess()
+            status = .needsPermission
+        }
+        loop = Task { [weak self] in
+            while !Task.isCancelled {
+                guard let self else { return }
+                if !self.suspended { await self.tick() }
+                try? await Task.sleep(for: .seconds(self.nextDelay))
+            }
+        }
+    }
+
+    func pause() {
+        loop?.cancel()
+        loop = nil
+        status = .paused
+        pendingVoice = nil
+        cancelListening()
+    }
+
+    /// 换了窗口或区域后，从头开始比对。
+    func restart() {
+        tracker = MessageTracker()
+        signature = nil
+        cachedWindow = nil
+        if isRunning { pause(); start() }
+    }
+
+    /// 预览渲染用：直接设定界面状态，不截图也不分析。
+    func loadPreview(status: Status, reports: [EmotionReport], analyzing: Bool = false,
+                     windowName: String = L("聊天窗口", "Chat window"), error: String? = nil, preview: CGImage? = nil, pendingVoice: Int? = nil,
+                     draftReview: DraftReview? = nil) {
+        self.pendingVoice = pendingVoice
+        self.draftReview = draftReview
+        if let draftReview { draft = draftReview.draft }
+        self.status = status
+        self.reports = reports
+        self.analyzing = analyzing
+        self.windowName = windowName
+        self.analysisError = error
+        self.preview = preview
+        self.detectedContact = reports.first?.contact
+        self.previewRunning = status == .watching
+        if error != nil { failed = ([], ChatMessage(speaker: .them, text: "", top: 0), nil, []) }
+    }
+
+    func clearHistory() {
+        reports.removeAll()
+        analyzedKeys.removeAll()
+    }
+
+    private func tick() async {
+        do {
+            let window: SCWindow
+            if let cached = cachedWindow, Date().timeIntervalSince(cachedAt) < 10 {
+                window = cached
+            } else {
+                switch try await WindowCapture.find(id: settings.windowID) {
+                case .found(let found):
+                    window = found
+                    cachedWindow = found
+                    cachedAt = Date()
+                case .hidden(let name):
+                    if status != .windowHidden(name) { log.notice("window hidden: \(name, privacy: .private)") }
+                    status = .windowHidden(name)
+                    return
+                case .missing:
+                    let next = Status.noWindow(chosen: settings.windowID != 0)
+                    if status != next { log.notice("window missing, id=\(self.settings.windowID)") }
+                    status = next
+                    return
+                }
+                windowName = WindowCapture.name(of: window)
+                windowTitles = [window.owningApplication?.applicationName, window.title].compactMap { $0 }
+            }
+            let frame: CGImage
+            do {
+                frame = try await WindowCapture.capture(window)
+            } catch {
+                cachedWindow = nil   // 窗口可能被关掉或最小化了，下一轮重新找
+                throw error
+            }
+            preview = frame
+            status = .watching
+            guard let chat = WindowCapture.crop(frame, to: settings.region) else { return }
+            try await process(chat, frame: frame)
+        } catch {
+            log.error("tick failed: \(error.localizedDescription, privacy: .public)")
+            status = Self.isPermissionError(error) ? .needsPermission : .failed(error.localizedDescription)
+        }
+    }
+
+    /// 截好的聊天区域 → 认出消息 → 有新消息就排队分析。frame 是整个窗口（用来读标题栏里的名字），回放测试时为 nil。
+    private func process(_ chat: CGImage, frame: CGImage?) async throws {
+        guard let current = FrameSignature(chat), current.differs(from: signature) else { return }
+        signature = current
+        // 调试：UNDERTONE_DUMP_FRAMES=目录 时把每一帧聊天区域截图存下来，方便用 --inspect 离线复查识别
+        if let dir = ProcessInfo.processInfo.environment["UNDERTONE_DUMP_FRAMES"], let png = Self.png(chat) {
+            try? png.write(to: URL(fileURLWithPath: dir).appending(path: "frame-\(Int(Date().timeIntervalSince1970 * 1000)).png"))
+        }
+        let reading = try await Task.detached(priority: .userInitiated) { try ChatReader.read(chat) }.value
+        let messages = reading.messages
+        let them = messages.filter { $0.speaker == .them }.count
+        // 只记数量，不记内容
+        let count = { (kind: Attachment.Kind) in messages.filter { $0.attachment?.kind == kind }.count }
+        log.notice("frame changed: \(chat.width)x\(chat.height)px, \(reading.lines.count) OCR lines, \(reading.layout.count) blocks (\(reading.layout.filter { $0.kind == .avatar }.count) avatars), \(messages.count) messages (\(them) from them; voice \(count(.voice)), emoji \(count(.emoji)), sticker \(count(.sticker)), image \(count(.image)))")
+        let event = tracker.update(messages)
+        if let frame {
+            if case .reset = event { await detectContact(in: frame) } else if detectedContact == nil { await detectContact(in: frame) }
+        }
+        handle(event, chat: chat)
+    }
+
+    /// 回放测试（Undertone --replay）：把几张聊天区域截图依次当成新画面处理，每张都等分析做完。不截屏、不弹窗口。
+    func replay(_ images: [CGImage], after: (Int) -> Void) async {
+        for (index, image) in images.enumerated() {
+            do { try await process(image, frame: nil) } catch { log.error("replay failed: \(error.localizedDescription, privacy: .public)") }
+            while analyzing || pending != nil { try? await Task.sleep(for: .milliseconds(100)) }
+            after(index)
+        }
+    }
+
+    /// 读聊天区域上方的标题栏，认出对方名字。换了人就清掉手动设置的名字。
+    private func detectContact(in frame: CGImage) async {
+        guard let rect = WindowCapture.headerRegion(above: settings.region),
+              let header = WindowCapture.crop(frame, to: rect),
+              let lines = try? await Task.detached(priority: .utility, operation: { try TextRecognizer.recognize(header) }).value
+        else { return }
+        let name = ContactNameDetector.detect(lines, excluding: windowTitles)
+        if name != detectedContact {
+            log.notice("contact changed: \(name ?? "nil", privacy: .private)")
+            detectedContact = name
+            manualContact = nil
+        }
+    }
+
+    private func handle(_ event: TrackerEvent, chat: CGImage) {
+        let messages: [ChatMessage]
+        switch event {
+        case .unchanged: return
+        case .appended(let new): messages = new
+        case .reset(let visible): messages = visible
+        }
+        let kind = if case .reset = event { "reset" } else { "appended" }
+        log.notice("tracker \(kind, privacy: .public): \(messages.count) messages")
+        guard let latest = messages.last(where: { $0.speaker == .them }) else { return }
+        if let voice = latest.attachment, voice.isUntranscribedVoice {
+            // 语音还没转文字：只有时长，分析不出东西。提示用户在微信里转文字，转好后画面变了会自动接着分析。
+            pendingVoice = voice.seconds ?? 0
+            log.notice("latest is an untranscribed voice message (\(voice.seconds ?? 0) s)")
+            // UNDERTONE_AUTO_LISTEN=1（测试、录演示用）：不等用户点，直接开始听
+            if ProcessInfo.processInfo.environment["UNDERTONE_AUTO_LISTEN"] == "1" { startListening() }
+            return
+        }
+        pendingVoice = nil
+        enqueue(latest, images: ChatReader.visualCrops(for: latest, in: chat))
+    }
+
+    private func enqueue(_ latest: ChatMessage, images: [CGImage]) {
+        let context = contextBefore(latest)
+        let key = MessageTracker.normalize((context.last?.text ?? "") + "|" + latest.text)
+        guard !analyzedKeys.contains(key) else { return }
+        log.notice("queue analysis: \(latest.text, privacy: .private)")
+        analyzedKeys = Array((analyzedKeys + [key]).suffix(100))
+        pending = (context, latest, currentContact, images)
+        if !analyzing { Task { await drain() } }
+    }
+
+    private func contextBefore(_ latest: ChatMessage) -> [ChatMessage] {
+        let history = tracker.context(limit: 12)
+        let prefix = history.lastIndex(of: latest).map { Array(history[..<$0]) } ?? history
+        return Array(prefix.suffix(10))
+    }
+
+    /// 本地模型没在跑就自动拉起来。绝不会自动改用云端模型：聊天内容发不发出去只能由用户决定。
+    private func ensureLocalModel(force: Bool = false) async {
+        guard settings.autoStartOllama, settings.llmProvider == .ollama else { return }
+        guard force || !ollamaChecked else { return }
+        ollamaChecked = true
+        guard let url = URL(string: settings.ollamaURL.trimmingCharacters(in: .whitespaces)) else { return }
+        if await OllamaLauncher.ping(url) { ollamaStatus = .running; return }
+        startingOllama = true
+        defer { startingOllama = false }
+        log.notice("starting ollama serve")
+        let status = await OllamaLauncher(baseURL: url).ensureRunning()
+        ollamaStatus = status
+        log.notice("ollama: \(String(describing: status), privacy: .public)")
+    }
+
+    /// 手动模式：分析粘贴进来的聊天记录，取其中对方最后说的那条。
+    func analyzeManual(_ transcript: String) {
+        let parsed = ChatTranscript.parse(transcript)
+        guard let index = parsed.messages.lastIndex(where: { $0.speaker == .them }) else { return }
+        let latest = parsed.messages[index]
+        let context = Array(parsed.messages[..<index].suffix(10))
+        analysisError = nil
+        pending = (context, latest, manualContact ?? latest.sender, [])
+        if !analyzing { Task { await drain() } }
+    }
+
+    /// 「发之前看看」：检查用户要发的英文回复。用和分析一样的大模型（默认本机），聊天上下文取最近 10 条。
+    func checkDraft() {
+        let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty, !checkingDraft else { return }
+        checkingDraft = true
+        draftError = nil
+        let context = settings.manualMode ? Array(ChatTranscript.parse(manualTranscript).messages.suffix(10)) : tracker.context(limit: 10)
+        let relationship = relationship(for: currentContact)
+        Task {
+            defer { checkingDraft = false }
+            await ensureLocalModel()
+            do {
+                let checker = try settings.analyzerConfig().makeDraftChecker(relationship: relationship)
+                let review = try await checker.review(draft: text, context: context)
+                draftReview = review
+                log.notice("draft checked in \(Int(review.latencyMs)) ms")
+            } catch {
+                log.error("draft check failed: \(Self.category(error), privacy: .public) \(error.localizedDescription, privacy: .private)")
+                draftError = describe(error)
+            }
+        }
+    }
+
+    func clearDraft() {
+        draft = ""
+        draftReview = nil
+        draftError = nil
+    }
+
+    /// 启动时把本地模型和提示词前缀预先加载好：冷启动第一次分析要 11.7 秒，预热后约 3 秒。
+    /// 只对本地模型做——云端模型按次计费，绝不偷偷调用。
+    func warmUpLocalModel() {
+        guard !warmedUp, settings.llmProvider == .ollama else { return }
+        warmedUp = true
+        Task {
+            await ensureLocalModel()
+            guard let url = URL(string: settings.ollamaURL), await OllamaLauncher.ping(url),
+                  let analyzer = try? settings.analyzerConfig().makeAnalyzer(relationship: settings.relationship) else { return }
+            let start = Date()
+            _ = try? await analyzer.analyze(context: [], latest: ChatMessage(speaker: .them, text: L("嗯", "ok"), top: 0))
+            log.notice("warm-up done in \(Int(Date().timeIntervalSince(start) * 1000)) ms")
+        }
+    }
+
+    /// 一次只分析一条；分析期间来的新消息只保留最新的一条。
+    private func drain() async {
+        analyzing = true
+        defer { analyzing = false }
+        while let job = pending {
+            pending = nil
+            await ensureLocalModel()
+            do {
+                let contactMemory = job.contact.map(memory.memory(for:))
+                let summary = settings.useMemory ? contactMemory?.promptSummary(language: settings.language) : nil
+                let analyzer = try settings.analyzerConfig().makeAnalyzer(relationship: relationship(for: job.contact), memory: summary)
+                let latest = await describeImage(job)
+                let analyzed = try await analyzer.analyze(context: job.context, latest: latest)
+                var report = MemoryHints.apply(to: MoneyNet.apply(to: SafetyNet.apply(to: analyzed)))
+                report.contact = job.contact
+                if settings.autoRecordMemory, let contact = job.contact { editMemory(contact) { $0.record(report) } }
+                reports.insert(report, at: 0)
+                Self.debugLog(report)
+                reports = Array(reports.prefix(30))
+                analysisError = nil
+                failed = nil
+                log.notice("analysis done in \(Int(report.latencyMs)) ms by \(report.engine, privacy: .public)")
+            } catch let error as URLError where Self.isConnectionError(error) && !ollamaRetried
+                && settings.llmProvider == .ollama && settings.autoStartOllama {
+                // 本地模型可能刚被关掉：拉起来再试一次这条。
+                ollamaRetried = true
+                await ensureLocalModel(force: true)
+                pending = job
+            } catch {
+                // 错误信息里可能带着模型输出（即聊天内容），只公开类别，细节标为隐私。
+                log.error("analysis failed: \(Self.category(error), privacy: .public) \(error.localizedDescription, privacy: .private)")
+                analysisError = describe(error)
+                failed = job
+            }
+        }
+    }
+
+    /// 消息里有表情、表情包时，先让模型看一眼截图，把「[表情]」换成「[表情：捂脸]」这样的描述。
+    /// 看不了（模型不支持看图、设置里关了、出错）就保留占位符，照样分析文字。
+    private func describeImage(_ job: Job) async -> ChatMessage {
+        let images = job.images.compactMap(Self.png)
+        guard !images.isEmpty, settings.readImages,
+              let backend = try? settings.analyzerConfig().llm.backend(), !noVision.contains(backend.name) else { return job.latest }
+        if let ollama = backend as? OllamaBackend, await ollama.supportsVision() == false {
+            noVision.insert(backend.name)
+            log.notice("model cannot read images, keeping placeholders")
+            return job.latest
+        }
+        let start = Date()
+        do {
+            // 缓存按语言分开：切到英文后不该再用中文的表情名
+            let prefix = settings.language.rawValue + ":"
+            let known = descriptions.filter { $0.key.hasPrefix(prefix) }
+                .reduce(into: [String: String]()) { $0[String($1.key.dropFirst(prefix.count))] = $1.value }
+            let (message, learned) = try await VisualDescriber(backend: backend, language: settings.language)
+                .read(job.latest, images: images, known: known)
+            if descriptions.count > 200 { descriptions.removeAll() }
+            for (key, value) in learned { descriptions[prefix + key] = value }
+            log.notice("read \(images.count) image(s) of \(job.latest.attachment?.kind.rawValue ?? "", privacy: .public) in \(Int(Date().timeIntervalSince(start) * 1000)) ms (\(images.count - learned.count) cached)")
+            return message
+        } catch AnalyzerError.http(_, let status, _) where status == 400 || status == 404 || status == 422 {
+            noVision.insert(backend.name)   // 多半是模型不支持图片输入
+            log.notice("image description rejected (\(status)), keeping placeholders")
+            return job.latest
+        } catch {
+            log.error("image description failed: \(Self.category(error), privacy: .public)")
+            return job.latest
+        }
+    }
+
+    nonisolated static func png(_ image: CGImage) -> Data? {
+        let rep = NSBitmapImageRep(cgImage: image)
+        return rep.representation(using: .png, properties: [:])
+    }
+
+    // MARK: - 用 deAPI 听语音
+
+    /// 开始听对方刚发的语音：录聊天软件发出的声音，用户在聊天软件里点开语音播放；
+    /// 录够时长（或用户点「停止」）后交给 deAPI 转成文字，再像普通消息一样分析。
+    func startListening() {
+        guard listenState == .idle, settings.canListenToVoice, let seconds = pendingVoice else { return }
+        Task { await beginListening(seconds: seconds) }
+    }
+
+    private func beginListening(seconds: Int) async {
+        do {
+            guard let window = cachedWindow, let owner = window.owningApplication else {
+                throw RecorderError(L("还没找到聊天窗口", "No chat window yet"))
+            }
+            let content = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
+            guard let display = content.displays.first(where: { $0.frame.intersects(window.frame) }) ?? content.displays.first,
+                  let app = content.applications.first(where: { $0.processID == owner.processID }) else {
+                throw RecorderError(L("找不到聊天软件", "Couldn't find the messaging app"))
+            }
+            let url = FileManager.default.temporaryDirectory.appending(path: "undertone-voice-\(UUID().uuidString).wav")
+            let listener = VoiceListener(url: url)
+            try await listener.start(app: app, display: display)
+            self.listener = listener
+            // 语音多长就录多久，留几秒给用户去点播放；读不出时长时录 40 秒（用户也可以随时点停止）
+            let limit = seconds > 0 ? min(seconds + 6, 66) : 40
+            listenState = .recording(limit: limit)
+            analysisError = nil
+            listenTimeout = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(limit))
+                guard !Task.isCancelled else { return }
+                // 另起一个任务：finishListening 会取消 listenTimeout，不能让它在 listenTimeout 自己里面跑，
+                // 否则上传请求跟着被取消（URLError -999）
+                Task { await self?.finishListening() }
+            }
+        } catch {
+            analysisError = L("没能开始听：", "Couldn't start listening: ") + error.localizedDescription
+            listenState = .idle
+        }
+    }
+
+    /// 放弃这次录音，不发给 deAPI。
+    func cancelListening() {
+        guard case .recording = listenState, let listener else { return }
+        listenTimeout?.cancel()
+        listenTimeout = nil
+        self.listener = nil
+        listenState = .idle
+        Task {
+            let recording = await listener.stop()
+            try? FileManager.default.removeItem(at: recording.url)
+        }
+    }
+
+    /// 停止录音，交给 deAPI 转文字。
+    func finishListening() async {
+        guard case .recording = listenState, let listener else { return }
+        listenTimeout?.cancel()
+        listenTimeout = nil
+        self.listener = nil
+        listenState = .transcribing
+        let recording = await listener.stop()
+        defer {
+            try? FileManager.default.removeItem(at: recording.url)   // 录音不留在本机
+            listenState = .idle
+        }
+        guard recording.heardSomething, let audio = try? Data(contentsOf: recording.url) else {
+            analysisError = L("没听到声音：点「听这条语音」之后，再到聊天软件里点开这条语音播放。",
+                              "Didn't hear anything: after tapping Listen, play the voice message in your messaging app.")
+            return
+        }
+        do {
+            let start = Date()
+            // 不指定语言：Whisper 自己判断，中英文聊天都能用
+            let text = try await settings.transcriber.transcribe(audio)
+            log.notice("deAPI transcribed \(String(format: "%.1f", recording.seconds), privacy: .public) s of audio in \(Int(Date().timeIntervalSince(start) * 1000)) ms")
+            guard !text.isEmpty else {
+                analysisError = L("deAPI 没听出说了什么，可能录到的只是背景声。", "deAPI didn't hear any words; it may have only caught background sound.")
+                return
+            }
+            let seconds = pendingVoice
+            pendingVoice = nil
+            let message = ChatMessage(speaker: .them, text: Placeholder.transcript + " " + text, top: 0,
+                                      attachment: Attachment(kind: .voice, seconds: seconds == 0 ? nil : seconds, transcribed: true))
+            enqueue(message, images: [])
+        } catch {
+            log.error("deAPI transcription failed: \(Self.category(error), privacy: .public)")
+            analysisError = error.localizedDescription
+        }
+    }
+
+    /// 仅当设置了环境变量 UNDERTONE_LOG 时，把结果追加写进该文件（调试用，默认不落盘）。
+    private static func debugLog(_ report: EmotionReport) {
+        guard let path = ProcessInfo.processInfo.environment["UNDERTONE_LOG"],
+              var line = try? JSONEncoder().encode(report) else { return }
+        line.append(0x0A)
+        if let handle = FileHandle(forWritingAtPath: path) {
+            handle.seekToEndOfFile()
+            handle.write(line)
+            try? handle.close()
+        } else {
+            FileManager.default.createFile(atPath: path, contents: line)
+        }
+    }
+
+    /// 把常见的网络错误翻成用户看得懂、知道怎么办的话。
+    private func describe(_ error: Error) -> String {
+        let engine = settings.llmCloudName ?? L("本地大模型", "local model")
+        let fix = settings.llmProvider == .ollama ? L("请先在终端运行 ollama serve。", "Run ollama serve in Terminal first.")
+            : L("请检查网络和 API Key。", "Check your network and API key.")
+        switch (error as? URLError)?.code {
+        case .cannotConnectToHost?, .cannotFindHost?, .networkConnectionLost?, .notConnectedToInternet?:
+            return L("连不上分析引擎（\(engine)）。", "Can't reach the analysis engine (\(engine)). ") + fix
+        case .timedOut?:
+            return L("分析超时了：模型可能还在加载，或者内存不够。稍后点「重试」。",
+                     "Analysis timed out: the model may still be loading, or memory is tight. Tap Retry in a moment.")
+        default:
+            return error.localizedDescription
+        }
+    }
+
+    static func isConnectionError(_ error: URLError) -> Bool {
+        [.cannotConnectToHost, .cannotFindHost, .networkConnectionLost, .notConnectedToInternet].contains(error.code)
+    }
+
+    /// 可以公开写进系统日志的错误类别（不含任何聊天内容）。
+    static func category(_ error: Error) -> String {
+        switch error {
+        case AnalyzerError.badResponse: "bad_response"
+        case AnalyzerError.refused: "refused"
+        case AnalyzerError.http(let service, let status, _): "http \(status) from \(service)"
+        case let error as URLError: "url_error \(error.code.rawValue)"
+        default: String(describing: type(of: error))
+        }
+    }
+
+    private static func isPermissionError(_ error: Error) -> Bool {
+        let e = error as NSError
+        return e.domain == SCStreamErrorDomain && e.code == SCStreamError.userDeclined.rawValue
+    }
+}

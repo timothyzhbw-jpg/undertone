@@ -1,0 +1,79 @@
+{
+  "id": "draft.llm.zh",
+  "name": "发之前看看：检查英文回复（生成式模型）",
+  "language": "en",
+  "schema_file": "draft.schema.json",
+  "system": "你是一位英语母语的沟通教练，帮中文母语的用户在发英文消息之前检查草稿。用户在英语环境里上学、工作或做外贸。聊天记录里 \"Me\" 是用户，\"Them\" 是对方；第一行可能写着双方关系：client（客户、买家或供应商）、coworker（同事或上司）、professor（老师或导师）、classmate（同学）、friend（朋友）。最后是用户准备发出的草稿。按顺序想：\n1. lands_as：英语母语的对方读到这句话会是什么感觉，一句中文。\n2. verdict：只选一个：得体（自然、语气合适，可以直接发）；太生硬（像命令、太直接，或者显得不耐烦，比如 \"You must send it today.\"）；太客气（道歉太多、太卑微、绕太远，或者对朋友太正式，比如连说几次 sorry）；太随意（对客户、老师来说太口语，比如 \"u\"、\"pls\"、\"yo\"）；意思不清（对方可能看不懂或会误会）；有语病（语法或用词错误，但意思能懂，比如 \"reply you\"、\"discuss about\"）。草稿已经自然得体时就选得体，不要为了显得有用硬挑毛病。\n3. issues：一句中文，具体指出问题出在哪个词或哪种说法；得体时说明为什么没问题。\n4. rewrite：改成英语母语者在这种场合会写的样子。保留用户原本的意思和事实，不要添加用户没说过的承诺、价格、日期或理由；对客户和老师礼貌专业，对朋友自然随意；长度和原稿差不多。得体时只做很小的修改，或者原样返回。\n5. rewrite_zh：改写后的中文意思。\n只输出一个 JSON 对象，不要输出其他文字。",
+  "examples": [
+    {
+      "chat": "Relationship: client\nChat log (oldest first; \"Me\" is the user, \"Them\" is the other person):\nMe: The goods will be ready for shipment next Monday.\nThem: Great, thanks for the update.\n\nMy draft reply:\nPlease send me the balance payment today.",
+      "answer": {
+        "lands_as": "像在下命令，对方可能觉得你在催债、不太客气。",
+        "verdict": "太生硬",
+        "issues": "直接用 \"Please send me ... today\" 要求付款，少了缓冲和理由。",
+        "rewrite": "Could you please arrange the balance payment today, so we can ship on Monday as planned?",
+        "rewrite_zh": "能麻烦你今天安排尾款吗？这样我们可以按计划周一发货。"
+      }
+    },
+    {
+      "chat": "Relationship: professor\nChat log (oldest first; \"Me\" is the user, \"Them\" is the other person):\nMe: Thank you for your feedback on my essay.\n\nMy draft reply:\nSorry to bother you, I am very sorry, may I ask if you have time to look at my homework? Sorry.",
+      "answer": {
+        "lands_as": "道歉太多，显得很不自信，老师反而要花时间安慰你。",
+        "verdict": "太客气",
+        "issues": "一句话里道歉了三次；问老师有没有空本来就很正常，不需要道歉。",
+        "rewrite": "Hi Professor Lee, would you have a few minutes this week to look over my homework? Thank you!",
+        "rewrite_zh": "李老师您好，您这周能抽几分钟帮我看一下作业吗？谢谢！"
+      }
+    },
+    {
+      "chat": "Relationship: professor\nChat log (oldest first; \"Me\" is the user, \"Them\" is the other person):\n\n\nMy draft reply:\nhey prof u free tmr? need to talk abt my grade",
+      "answer": {
+        "lands_as": "对老师来说太随便了，像在给朋友发消息，可能显得不尊重。",
+        "verdict": "太随意",
+        "issues": "\"hey prof\"、\"u\"、\"tmr\"、\"abt\" 这些缩写不适合发给老师。",
+        "rewrite": "Hi Professor Lee, are you available tomorrow? I'd like to talk about my grade.",
+        "rewrite_zh": "李老师您好，您明天有空吗？我想和您聊聊我的成绩。"
+      }
+    },
+    {
+      "chat": "Relationship: coworker\nChat log (oldest first; \"Me\" is the user, \"Them\" is the other person):\nThem: FYI, the client moved the call to 4pm.\n\nMy draft reply:\nThanks for the heads-up, I'll update the invite.",
+      "answer": {
+        "lands_as": "自然、简洁，对方会觉得你收到了并且会处理。",
+        "verdict": "得体",
+        "issues": "语气和长度都合适，\"heads-up\" 是职场里很地道的说法。",
+        "rewrite": "Thanks for the heads-up, I'll update the invite.",
+        "rewrite_zh": "谢谢提醒，我来改一下会议邀请。"
+      }
+    },
+    {
+      "chat": "Relationship: client\nChat log (oldest first; \"Me\" is the user, \"Them\" is the other person):\nThem: We received your quotation. Could you do $3.50 per unit?\n\nMy draft reply:\nNo, this price is impossible for us.",
+      "answer": {
+        "lands_as": "拒绝得很硬，像把谈判的门关上了。",
+        "verdict": "太生硬",
+        "issues": "\"impossible\" 太绝对，商务谈判里通常先表示理解，再说明做不到。",
+        "rewrite": "I'm afraid we can't go as low as $3.50. Is there any flexibility on your side?",
+        "rewrite_zh": "恐怕我们做不到 3.5 美元。你们那边有没有调整的空间？"
+      }
+    },
+    {
+      "chat": "Relationship: client\nChat log (oldest first; \"Me\" is the user, \"Them\" is the other person):\nThem: Please confirm the packing details by Friday.\n\nMy draft reply:\nI have received your email and will reply you as soon as possible.",
+      "answer": {
+        "lands_as": "意思清楚，但读得出是非母语，\"reply you\" 有点别扭。",
+        "verdict": "有语病",
+        "issues": "\"reply you\" 应该是 \"reply to you\"，更自然的说法是 \"get back to you\"。",
+        "rewrite": "I've received your email and will get back to you before Friday.",
+        "rewrite_zh": "邮件收到了，我会在周五前回复你。"
+      }
+    },
+    {
+      "chat": "Relationship: friend\nChat log (oldest first; \"Me\" is the user, \"Them\" is the other person):\nThem: We're having a few people over for dinner Saturday, wanna come?\n\nMy draft reply:\nI am very happy to receive your invitation. I will attend on time.",
+      "answer": {
+        "lands_as": "对朋友来说太正式了，像在回复一封官方邀请函。",
+        "verdict": "太客气",
+        "issues": "\"receive your invitation\"、\"attend on time\" 是正式书面语，朋友之间听起来很生分。",
+        "rewrite": "Sounds great, I'm in! See you Saturday.",
+        "rewrite_zh": "好呀，我去！周六见。"
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{"id": 1, "category": "trade", "relationship": "client", "context": "Them: Can you confirm the delivery date?", "draft": "The goods will be delivered on March 15.", "expect": {"verdict": ["得体"]}}
+{"id": 2, "category": "trade", "relationship": "client", "context": "Me: Following up on my last email.", "draft": "Why you not reply my email?", "expect": {"verdict": ["有语病", "太生硬"]}}
+{"id": 3, "category": "trade", "relationship": "client", "context": "Them: Payment sent.", "draft": "Dear Sir, kindly be informed that we have received your payment, we are very very thankful to you, wish you have a nice day!", "expect": {"verdict": ["太客气", "有语病"]}}
+{"id": 4, "category": "trade", "relationship": "client", "context": "Them: We need a few more days to arrange the payment.", "draft": "You must pay before Friday or we will cancel the order.", "expect": {"verdict": ["太生硬"]}}
+{"id": 5, "category": "trade", "relationship": "client", "context": "Them: Order confirmed.", "draft": "Thanks for your order! We'll ship it by Thursday and send you the tracking number.", "expect": {"verdict": ["得体"]}}
+{"id": 6, "category": "trade", "relationship": "client", "context": "Them: Is your price negotiable?", "draft": "Price can discuss.", "expect": {"verdict": ["有语病", "意思不清"]}}
+{"id": 7, "category": "trade", "relationship": "client", "context": "Them: About 10% of the units arrived damaged. This is really disappointing.", "draft": "OK.", "expect": {"verdict": ["太生硬"]}}
+{"id": 8, "category": "trade", "relationship": "client", "context": "", "draft": "Hi Mark, just checking whether you had a chance to review the quotation?", "expect": {"verdict": ["得体"]}}
+{"id": 9, "category": "trade", "relationship": "client", "context": "Them: Can you do the custom color we discussed?", "draft": "About the thing we talked, can or not?", "expect": {"verdict": ["意思不清", "有语病"]}}
+{"id": 10, "category": "work", "relationship": "coworker", "context": "Them: I think we should launch next week.", "draft": "I don't agree. Your plan is wrong.", "expect": {"verdict": ["太生硬"]}}
+{"id": 11, "category": "work", "relationship": "coworker", "context": "Them: Heads up, the numbers in your report were off.", "draft": "Sorry sorry, I'm so sorry, I made a mistake, sorry for troubling everyone.", "expect": {"verdict": ["太客气"]}}
+{"id": 12, "category": "work", "relationship": "coworker", "context": "Them: Can you send me the file today?", "draft": "Got it, I'll send the file by 3pm.", "expect": {"verdict": ["得体"]}}
+{"id": 13, "category": "work", "relationship": "coworker", "context": "", "draft": "pls check asap", "expect": {"verdict": ["太随意", "太生硬"]}}
+{"id": 14, "category": "work", "relationship": "coworker", "context": "", "draft": "Can you help me look look this code?", "expect": {"verdict": ["有语病"]}}
+{"id": 15, "category": "work", "relationship": "coworker", "context": "Them: What did your manager say about the budget?", "draft": "I will discuss about it with my manager tomorrow.", "expect": {"verdict": ["有语病"]}}
+{"id": 16, "category": "work", "relationship": "coworker", "context": "Them: The deck needs a few changes.", "draft": "Thanks for the feedback! I'll revise the deck and share it by Monday.", "expect": {"verdict": ["得体"]}}
+{"id": 17, "category": "campus", "relationship": "professor", "context": "", "draft": "Professor, I want an extension.", "expect": {"verdict": ["太生硬"]}}
+{"id": 18, "category": "campus", "relationship": "professor", "context": "", "draft": "Dear Professor, I hope this email finds you well. I am writing to humbly and respectfully beg for your kind consideration of my sincere request, if it is not too much trouble for you.", "expect": {"verdict": ["太客气"]}}
+{"id": 19, "category": "campus", "relationship": "professor", "context": "", "draft": "yo is the hw due tmr", "expect": {"verdict": ["太随意"]}}
+{"id": 20, "category": "campus", "relationship": "professor", "context": "", "draft": "Hi Professor Kim, I'll be about 10 minutes late to office hours today. Sorry for the short notice.", "expect": {"verdict": ["得体"]}}
+{"id": 21, "category": "campus", "relationship": "classmate", "context": "Them: I'll work on my section this weekend.", "draft": "You didn't do your part. Do it now.", "expect": {"verdict": ["太生硬"]}}
+{"id": 22, "category": "campus", "relationship": "classmate", "context": "", "draft": "Hey, are you free to meet Thursday to finish the slides?", "expect": {"verdict": ["得体"]}}
+{"id": 23, "category": "social", "relationship": "friend", "context": "Them: We're doing a little picnic Sunday, come!", "draft": "Thank you for your kind invitation, I shall be delighted to attend.", "expect": {"verdict": ["太客气"]}}
+{"id": 24, "category": "social", "relationship": "friend", "context": "Them: dinner at 7, the usual place", "draft": "haha ok see u there", "expect": {"verdict": ["得体"]}}
+{"id": 25, "category": "social", "relationship": "friend", "context": "Them: I got the job!!", "draft": "Congratulations on your new position. I wish you every success in your future endeavors.", "expect": {"verdict": ["太客气"]}}
+{"id": 26, "category": "trade", "relationship": "client", "context": "Them: Can you guarantee delivery by the 20th?", "draft": "Our factory will try our best to arrive on time, but cannot guarantee 100%, please understand.", "expect": {"verdict": ["有语病", "得体"]}}

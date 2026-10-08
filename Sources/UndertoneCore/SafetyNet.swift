@@ -1,0 +1,96 @@
+import Foundation
+
+/// 自伤信号的关键词兜底，和模型判断取并集：小模型会漏判，这类信号宁可多提醒。
+/// 只收特异性高的说法（手段、计划、道别、自伤行为、以死相逼）；「笑死」「想死」「去死」这类日常夸张不收。
+/// 名单来自 duxin 项目的实测（Kev 对「我已经把药都攒够了，谢谢你这几年对我好」给出 0.00）。
+public enum SafetyNet {
+    public static let patterns = [
+        #"自杀"#, #"轻生"#, #"不想活"#, #"活不下去"#, #"活着没(有|什么)?意思"#, #"活着(真的)?好累"#,
+        #"结束(自己|我)的?生命"#, #"了结自己"#, #"一了百了"#, #"遗书"#, #"遗言"#,
+        #"跳楼"#, #"跳河"#, #"割腕"#, #"烧炭"#, #"上吊"#, #"划(了)?自己"#, #"伤害自己"#, #"安眠药"#,
+        #"(攒|囤)[了够好齐多]{0,3}(安眠)?药"#, #"药.{0,2}(攒|囤)"#,
+        #"永别"#, #"下辈子再见"#, #"再也不(用)?醒"#, #"不想(再)?醒来"#, #"一睡不醒"#,
+        #"没有我.{0,6}(更好|轻松)"#, #"我(就)?是(个)?累赘"#, #"消失了也"#, #"消失算了"#, #"离开这个世界"#,
+        #"撑不下去了"#, #"我不在了"#, #"我就去死"#,
+        #"(?i:suicid)"#, #"(?i:kill myself)"#, #"(?i:end (it all|my life))"#, #"(?i:(cut|hurt|harm)(ting)? myself)"#,
+        #"(?i:self[- ]harm)"#, #"(?i:better off without me)"#,
+        // 英文：同样只收手段、计划、道别和消极念头；「I want to die」「kill me now」「I'm dead 😂」这类日常夸张不收。
+        #"(?i:(don['’]?t|do not|no longer) want to (live|be alive|exist|be here)( any ?more)?)"#,
+        #"(?i:no (reason|point) (to|in) (live|living|go(ing)? on))"#, #"(?i:wish I (was|were|could be) dead)"#,
+        #"(?i:take my (own )?life)"#, #"(?i:unalive (myself|me))"#, #"(?i:can['’]?t go on)"#,
+        #"(?i:(sleep|fall asleep|go to sleep) and (never|not) wake up)"#, #"(?i:never wake up again)"#,
+        #"(?i:(saved|saving|stockpiled|hoarded|stashed|collected) (up )?(enough |all (of )?(my|the) |my |the )?(pills|meds|sleeping pills))"#,
+        #"(?i:overdos(e|ing))"#, #"(?i:sleeping pills)"#, #"(?i:slit(ting)? my wrists?)"#, #"(?i:hang(ing)? myself)"#,
+        #"(?i:jump(ing)? off (a|the|this|that) (bridge|building|roof|cliff))"#,
+        #"(?i:I['’]?m (just )?a burden)"#, #"(?i:I am (just )?a burden)"#,
+        #"(?i:(no ?one|nobody) would (even )?(notice|care|miss me) if I)"#, #"(?i:if I (just )?(disappeared|was gone|were gone))"#,
+        #"(?i:better off if I (just )?(wasn['’]?t|weren['’]?t|was not|were not) (around|here|alive))"#,
+        #"(?i:want (it all|everything) to (stop|end))"#, #"(?i:(don['’]?t|do not) see the point (of|in) (anything|living|life|going on))"#,
+        #"(?i:giv(e|ing) away (all )?(of )?my (stuff|things|belongings))"#,
+        #"(?i:goodbye forever)"#, #"(?i:(suicide|goodbye) (note|letter))"#, #"(?i:won['’]?t be (around|here) (much longer|for long|anymore))"#,
+    ]
+
+    private static let regex = try! NSRegularExpression(pattern: patterns.map { "(?:\($0))" }.joined(separator: "|"))
+
+    /// 命中时给的概率：明显低于模型确信的 1.0，界面会显示为「可能」。
+    public static let probability = 0.6
+
+    /// 返回命中的片段；没有命中返回 nil。去掉空白后再匹配一次，防止「不 想 活」这类写法漏掉。
+    public static func match(_ text: String) -> String? {
+        for candidate in [text, text.filter { !$0.isWhitespace }] {
+            let range = NSRange(candidate.startIndex..., in: candidate)
+            if let hit = regex.firstMatch(in: candidate, range: range), let found = Range(hit.range, in: candidate) {
+                return String(candidate[found])
+            }
+        }
+        return nil
+    }
+
+    public static func matches(_ text: String) -> Bool { match(text) != nil }
+
+    /// 命中关键词且模型没标出时，把自伤概率提到 probability。
+    public static func apply(to report: EmotionReport) -> EmotionReport {
+        guard matches(report.message.text) else { return report }
+        var report = report
+        let key = EmotionFlag.selfHarm.rawValue
+        report.flags[key] = max(report.flags[key] ?? 0, probability)
+        return report
+    }
+}
+
+/// 涉及钱或账号的关键词兜底：冒充熟人借钱、要卡号验证码，小模型和决策模型都会漏（duxin 实测 Kev 只给 0.31）。
+/// 手机密码这类亲密关系里的隐私要求不算在内，交给「情感操控」判断。
+public enum MoneyNet {
+    public static let patterns = [
+        #"转(账|给我|到(这|我|下面|以下))"#, #"打钱"#, #"汇款"#, #"借(我|点)?.{0,4}(钱|块|元|万|\d)"#, #"垫付"#,
+        #"(银行)?卡号"#, #"验证码"#, #"(支付|银行卡|登录|账号|取款)密码"#, #"保证金"#, #"收款码"#, #"刷单"#,
+        #"安全账户"#, #"(?i:gift ?card)"#, #"(?i:wire (me|the) money)"#, #"(?i:verification code)"#,
+        // 英文：冒充熟人借钱、要卡号和一次性验证码。「I'll venmo you」这种我收钱的不算。
+        #"(?i:(lend|loan|front) me (some |a few |like )?(money|cash|bucks|\$ ?\d|\d))"#, #"(?i:borrow (some )?(money|cash|\$ ?\d|\d))"#,
+        #"(?i:(send|wire|transfer) (me )?(some |the )?(money|cash|funds|\$ ?\d|\d+ ?(dollars|bucks|usd)))"#,
+        #"(?i:(venmo|zelle|cash ?app|paypal) me)"#, #"(?i:western union|moneygram)"#,
+        #"(?i:(bank|card|account|routing|social security|ssn) (number|details|info))"#,
+        #"(?i:(bank|card|account|login|banking) (pin|password|passcode))"#,
+        #"(?i:(one[- ]time|security|2fa|login|6[- ]digit|auth(entication)?) code)"#,
+        #"(?i:send .{0,20}(bitcoin|btc|crypto|usdt))"#,
+        // 外贸最常见的骗局：冒充客户或供应商说「收款账户换了」，让你把货款打到新账户。
+        #"(?i:(new|changed|updated|different|another) (bank|beneficiary|receiving|company) account)"#,
+        #"(?i:(bank|beneficiary|payment|remittance|account) (details|information|info|account) (has|have) (been )?(changed|updated))"#,
+        #"(?i:(pay|send|remit|transfer|wire) .{0,40}(to|into) (the|our|this|my) (new|other|updated|personal) account)"#,
+    ]
+
+    private static let regex = try! NSRegularExpression(pattern: patterns.map { "(?:\($0))" }.joined(separator: "|"))
+
+    public static func matches(_ text: String) -> Bool {
+        regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)) != nil
+    }
+
+    /// 命中时把 asks_money 提到 SafetyNet.probability。
+    public static func apply(to report: EmotionReport) -> EmotionReport {
+        guard matches(report.message.text) else { return report }
+        var report = report
+        let key = EmotionFlag.asksMoney.rawValue
+        report.flags[key] = max(report.flags[key] ?? 0, SafetyNet.probability)
+        return report
+    }
+}

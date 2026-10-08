@@ -1,0 +1,40 @@
+{
+  "type": "object",
+  "properties": {
+    "lands_as": {
+      "type": "string",
+      "description": "对方读起来的感觉，一句中文"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "得体",
+        "太生硬",
+        "太客气",
+        "太随意",
+        "意思不清",
+        "有语病"
+      ]
+    },
+    "issues": {
+      "type": "string",
+      "description": "具体问题，一句中文"
+    },
+    "rewrite": {
+      "type": "string",
+      "description": "更地道的英文写法"
+    },
+    "rewrite_zh": {
+      "type": "string",
+      "description": "改写后的中文意思"
+    }
+  },
+  "required": [
+    "lands_as",
+    "verdict",
+    "issues",
+    "rewrite",
+    "rewrite_zh"
+  ],
+  "additionalProperties": false
+}

@@ -19,6 +19,7 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN/Undertone" "$APP/Contents/MacOS/Undertone"
 cp -R presets "$APP/Contents/Resources/presets"
+cp scripts/icon/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"   # 图标由 scripts/icon/make_icon.swift 生成
 
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -29,6 +30,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
     <key>CFBundleName</key><string>Undertone</string>
     <key>CFBundleDisplayName</key><string>Undertone</string>
     <key>CFBundleExecutable</key><string>Undertone</string>
+    <key>CFBundleIconFile</key><string>AppIcon</string>
     <key>CFBundlePackageType</key><string>APPL</string>
     <key>CFBundleShortVersionString</key><string>${VERSION}</string>
     <key>CFBundleVersion</key><string>${BUILD}</string>

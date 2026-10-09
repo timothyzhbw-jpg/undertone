@@ -74,6 +74,21 @@ Then a **fresh held-out set** of 40 messages ([`eval/crosscultural.holdout2.json
 
 All three models missed one hopelessness message ("tired of everything… never going to get better"), and the fine-tuned ones missed a "pay our new bank" scam. Keyword patterns for both were added to the safety nets *after* seeing these items, so those two items no longer count as unseen for the keyword nets.
 
+## Tuning the prompt instead (2026-10-09)
+
+Since the fine-tuned models didn't generalize, the effort went into the prompt the app actually uses. The 324 labelled pool messages became a prompt-tuning set ([`pool_eval.jsonl`](pool_eval.jsonl)), large enough to show which readings get confused with which. The baseline mislabelled most errors as *means what it says*: 19 of 30 *just being polite*, 12 of 51 *a polite no*. The cause was a blunt "don't over-interpret" rule added earlier.
+
+| Prompt | Pool (324) | Dev (40) | Held out v1 (28) | **Fresh held out v2 (39)** | Pool signals caught |
+|---|---|---|---|---|---|
+| v2 (before) | 67% | 80% | 68% | 79% | 70% |
+| v3: ordered decision checklist instead of the blunt rule | 74% | 85% | — | — | 78% |
+| v4: v3 + sharper joking/sarcasm/interest rules + 2 examples | 75% | 90% | — | — | 71% (missed 2 money requests) |
+| **v5: v3 + sharper joking/sarcasm rules only (shipped)** | **75%** | **85%** | **79%** | **82%** | 77% |
+
+v4 was dropped because it caught fewer money and account requests. v5 missed one ("reply with your password"), which it still labelled a red flag. The app now shows the scam card for any red-flag reading, and the keyword net covers password requests.
+
+On the fresh held-out set, v5 is one item better than v2 (82% vs 79%). Most of the large pool gain is real for the confusions it targets (polite filler 8 → 20 of 30, joking 17 → 23 of 33), but part of it is the model learning the pool's labelling conventions, which come from the same author as the prompt.
+
 ## Pitfalls hit along the way
 
 1. **MLX and Anaconda's MPI.** MLX found Anaconda's MPICH, decided it wasn't Open MPI, and aborted. [`mlx_run.py`](mlx_run.py) points `MLX_MPI_LIBNAME` at a missing library and uses the ring backend.

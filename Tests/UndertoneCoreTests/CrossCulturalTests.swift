@@ -117,7 +117,8 @@ final class CrossCulturalTests: XCTestCase {
                      "Kindly transfer the balance to the account below.",
                      "Please update the beneficiary before releasing the payment.",
                      "You need to pay a small registration fee before we place the order.",
-                     "Please direct all future payments to our new bank in Singapore."] {
+                     "Please direct all future payments to our new bank in Singapore.",
+                     "IT here: please reply with your password so we can reset your account."] {
             XCTAssertTrue(MoneyNet.matches(text), text)
         }
         for text in ["Payment has been sent. Please find the bank slip attached.",
@@ -125,7 +126,8 @@ final class CrossCulturalTests: XCTestCase {
                      "I updated the account settings on the portal.",
                      "Received, thank you. We'll confirm the order quantity by Thursday.",
                      "The bank holiday pushed our shipment back a day.",
-                     "Thanks for registering for the trade show!"] {
+                     "Thanks for registering for the trade show!",
+                     "Never share your password with anyone, including IT."] {
             XCTAssertFalse(MoneyNet.matches(text), text)
         }
     }

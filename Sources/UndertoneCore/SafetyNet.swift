@@ -85,6 +85,8 @@ public enum MoneyNet {
         #"(?i:update (the |our )?(beneficiary|bank details|payment details|remittance))"#,
         #"(?i:(registration|processing|handling|certification|customs|release) fee)"#,
         #"(?i:payments? (to|into) (our|the|a|this) new (bank|account))"#,
+        // 冒充 IT、客服要密码
+        #"(?i:(reply with|send me|give me|tell me|confirm) (your |the )?(password|passcode|login|pin)\b)"#,
     ]
 
     private static let regex = try! NSRegularExpression(pattern: patterns.map { "(?:\($0))" }.joined(separator: "|"))

@@ -71,12 +71,12 @@ swift run UndertoneDemo
 
 | 评测集 | 条数 | 本地 qwen3.5:4b（提示词版本） |
 |---|---|---|
-| 开发集 [`eval/crosscultural.jsonl`](eval/crosscultural.jsonl) | 42 | 话外音类型 32/40（80%） |
-| 留出集 [`eval/crosscultural.holdout.jsonl`](eval/crosscultural.holdout.jsonl)（调提示词时没看过） | 29 | 19/28（68%） |
-| 新留出集 [`eval/crosscultural.holdout2.jsonl`](eval/crosscultural.holdout2.jsonl)（所有调整做完之后才写的） | 40 | 31/39（79%） |
+| 开发集 [`eval/crosscultural.jsonl`](eval/crosscultural.jsonl) | 42 | 话外音类型 34/40（85%） |
+| 第一套留出集 [`eval/crosscultural.holdout.jsonl`](eval/crosscultural.holdout.jsonl) | 29 | 22/28（79%） |
+| 新留出集 [`eval/crosscultural.holdout2.jsonl`](eval/crosscultural.holdout2.jsonl)（调提示词时没用过） | 40 | 32/39（82%） |
 | 发之前看看 [`eval/draft.jsonl`](eval/draft.jsonl) | 26 | 23/26（88%） |
 
-两套留出集一个 68%、一个 79%：样本这么小，几条题就能让分数差出一大截。本地 4B 模型大约每三到五条会看错一条，请对照原话和你对这个人的了解来判断，它给的只是参考。
+提示词最近一次是对着 [`train/pool.jsonl`](train/pool.jsonl) 里 324 条人工标注的消息调的：把一条笼统的「别过度解读」换成按顺序判断的清单以后，那 324 条从 67% 提到 75%，客套话、委婉拒绝被当成字面意思的情况少了很多。但在新留出集上只从 79% 到 82%，所以更大的那部分提升里，有一些是模型学会了我的标注习惯。本地 4B 模型大约每三到五条会看错一条，请对照原话和你对这个人的了解来判断，它给的只是参考。
 
 ## 本地模型训练
 

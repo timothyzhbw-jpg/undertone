@@ -50,7 +50,7 @@ chat window ──ScreenCaptureKit──▶ Apple Vision OCR + pixel layout dete
 ```
 
 - **Capture and layout.** ScreenCaptureKit captures only the chat window. A pixel-level detector finds bubbles, avatars, emoji and stickers, so it can tell their messages from yours. Emoji are painted out before OCR, then cropped and named by the vision model.
-- **Analysis.** A Chinese system prompt with 15 worked examples covering trade, workplace, campus, friends, hard negatives, a scam and a crisis message, with a JSON answer. The model explains the convention and the real meaning first, and picks the label last.
+- **Analysis.** A Chinese system prompt with an ordered decision checklist and 15 worked examples covering trade, workplace, campus, friends, hard negatives, a scam and a crisis message, with a JSON answer. The model explains the convention and the real meaning first, and picks the label last.
 - **Robust parsing.** Small models often quote English phrases inside JSON strings without escaping them. The parser repairs that instead of failing.
 - **Per-contact memory.** Notes such as "first order 5,000 pcs by end of March" are saved only when you confirm.
 - **Paste mode** for email, Slack, Teams or anything else you can copy, and **screenshots**: paste or drop a phone chat or email screenshot and it's read on your Mac (OCR plus the same bubble detector), shown as editable text, then analyzed. **Voice messages** can optionally be transcribed with Whisper via [deAPI](https://deapi.ai), only when you tap Listen.
@@ -80,12 +80,12 @@ All sets are hand-written English messages with expected readings and must-raise
 
 | Set | Size | Prompted qwen3.5:4b (local) |
 |---|---|---|
-| [`eval/crosscultural.jsonl`](eval/crosscultural.jsonl) (development) | 42 | reading 32/40 (80%), signals 3/3, false alarms 1/18 |
-| [`eval/crosscultural.holdout.jsonl`](eval/crosscultural.holdout.jsonl) (held out, not used for tuning) | 29 | reading 19/28 (68%) |
-| [`eval/crosscultural.holdout2.jsonl`](eval/crosscultural.holdout2.jsonl) (fresh set written after all tuning) | 40 | reading 31/39 (79%), signals 6/8, false alarms 0/10 |
+| [`eval/crosscultural.jsonl`](eval/crosscultural.jsonl) (development) | 42 | reading 34/40 (85%), signals 3/3, false alarms 1/18 |
+| [`eval/crosscultural.holdout.jsonl`](eval/crosscultural.holdout.jsonl) (first held-out set) | 29 | reading 22/28 (79%) |
+| [`eval/crosscultural.holdout2.jsonl`](eval/crosscultural.holdout2.jsonl) (fresh set, not used for tuning) | 40 | reading 32/39 (82%), signals 6/8, false alarms 0/10 |
 | [`eval/draft.jsonl`](eval/draft.jsonl) (Check before you send) | 26 | verdict 23/26 (88%) |
 
-The first held-out set scored 68%, the second 79%: with sets this small, a handful of items moves the score a lot. Run the evaluations yourself:
+The prompt was last tuned against the 324 labelled messages in [`train/pool.jsonl`](train/pool.jsonl), going from 67% to 75% there. Replacing a blunt "don't over-interpret" rule with an ordered decision checklist fixed most of the cases where polite filler and soft refusals were read as literal. On the fresh held-out set, the same change moved the score only from 79% to 82%, so treat the larger gains as partly the model learning the labelling conventions. Details are in [`train/RESULTS.md`](train/RESULTS.md). Run the evaluations yourself:
 
 ```bash
 swift run Undertone --eval eval/crosscultural.jsonl results.jsonl
@@ -101,7 +101,8 @@ python3 scripts/score_eval.py eval/crosscultural.jsonl results.jsonl
 
 | Model | Dev (40) | Held out (28) | **Fresh held out (39)** | Time per message |
 |---|---|---|---|---|
-| **Prompted qwen3.5:4b (instruct + 15 examples)** | 80% | 68% | **79%** | 5.9 s |
+| Prompted qwen3.5:4b (prompt used during training) | 80% | 68% | 79% | 5.9 s |
+| **Prompted qwen3.5:4b, current prompt** | **85%** | **79%** | **82%** | 6.1 s |
 | Base model, short prompt, no fine-tuning | 31% | — | — | 4.1 s |
 | LoRA, supervised (255) | 80% | 61% | — | 4.0 s |
 | LoRA, self-training only (145) | 70% | 71% | — | 3.7 s |

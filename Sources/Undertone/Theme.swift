@@ -3,7 +3,7 @@ import SwiftUI
 
 /// 配色、图标与文案映射。情绪颜色偏柔和，严重信号才用红色。
 enum Theme {
-    static let brand = LinearGradient(colors: [Color(red: 0.98, green: 0.45, blue: 0.55), Color(red: 0.99, green: 0.66, blue: 0.36)],
+    static let brand = LinearGradient(colors: [Color(red: 0.33, green: 0.36, blue: 0.93), Color(red: 0.16, green: 0.70, blue: 0.72)],
                                       startPoint: .topLeading, endPoint: .bottomTrailing)
     static let reply = Color(red: 0.36, green: 0.78, blue: 0.40)
     static let care = Color(red: 0.20, green: 0.62, blue: 0.70)

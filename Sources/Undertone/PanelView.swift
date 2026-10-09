@@ -119,7 +119,7 @@ struct PanelHeader: View {
         HStack(spacing: 10) {
             ZStack {
                 RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Theme.brand)
-                Image(systemName: "eye.fill").font(.system(size: 11, weight: .bold)).foregroundStyle(.white)
+                Image(systemName: "quote.bubble.fill").font(.system(size: 11, weight: .bold)).foregroundStyle(.white)
             }
             .frame(width: 24, height: 24)
             VStack(alignment: .leading, spacing: 1) {
@@ -208,7 +208,8 @@ struct ReportView: View {
         VStack(alignment: .leading, spacing: 10) {
             MessageQuote(message: report.message, date: report.date, isLatest: isLatest, analyzing: analyzing)
             if selfHarm { SafetyCard() }
-            if flags.contains(.asksMoney) { MoneyCard() }
+            // 话外音判成「可疑」（钓鱼链接、冒充 IT 这类）时也提醒，不只靠钱和账号的信号
+            if flags.contains(.asksMoney) || report.reading == "可疑" { MoneyCard() }
             if !selfHarm, let reading = report.reading {
                 ReadingCard(reading: reading, meaning: report.realMeaning, literal: report.literal,
                             why: report.cultureNote, confidence: report.confidence,

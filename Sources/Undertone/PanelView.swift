@@ -210,14 +210,14 @@ struct ReportView: View {
             if selfHarm { SafetyCard() }
             // 话外音判成「可疑」（钓鱼链接、冒充 IT 这类）时也提醒，不只靠钱和账号的信号
             if flags.contains(.asksMoney) || report.reading == "可疑" { MoneyCard() }
-            if !selfHarm, let reading = report.reading {
-                ReadingCard(reading: reading, meaning: report.realMeaning, literal: report.literal,
+            if !selfHarm, report.reading != nil || report.cultureNote != nil {
+                ReadingCard(reading: report.reading, meaning: report.realMeaning, literal: report.literal,
                             why: report.cultureNote, confidence: report.confidence,
                             emotion: report.emotion, intensity: report.intensity)
-            } else {
+            } else if selfHarm || report.cultureNote == nil {
                 EmotionHero(report: report)
             }
-            if !selfHarm, report.reading == nil, let meaning = report.realMeaning, !meaning.isEmpty {
+            if !selfHarm, report.reading == nil, report.cultureNote == nil, let meaning = report.realMeaning, !meaning.isEmpty {
                 SubtextCard(literal: report.literal, meaning: meaning, consistency: report.consistency)
             }
             if !flags.isEmpty { SignalsCard(flags: flags, probabilities: report.flags) }
@@ -361,7 +361,8 @@ struct SubtextCard: View {
 
 /// 跨文化视角的核心：这句话其实是什么意思、为什么这么理解、有多大把握。
 struct ReadingCard: View {
-    let reading: String
+    /// 话外音类型；模型给了词表外的词时为 nil，只显示解释。
+    let reading: String?
     let meaning: String?
     let literal: String?
     let why: String?
@@ -372,11 +373,13 @@ struct ReadingCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             SectionTitle(symbol: "text.magnifyingglass", title: L("话外音", "Between the lines"), tint: .purple) {
-                Text(Vocabulary.display(reading, in: Vocabulary.readings))
-                    .font(.system(size: 11, weight: .semibold))
-                    .padding(.horizontal, 8).padding(.vertical, 2)
-                    .background(Capsule().fill(Theme.color(forReading: reading).opacity(0.15)))
-                    .foregroundStyle(Theme.color(forReading: reading))
+                if let reading {
+                    Text(Vocabulary.display(reading, in: Vocabulary.readings))
+                        .font(.system(size: 11, weight: .semibold))
+                        .padding(.horizontal, 8).padding(.vertical, 2)
+                        .background(Capsule().fill(Theme.color(forReading: reading).opacity(0.15)))
+                        .foregroundStyle(Theme.color(forReading: reading))
+                }
             }
             if let meaning, !meaning.isEmpty { row(L("其实是", "Means"), meaning, emphasized: true) }
             if let literal, !literal.isEmpty { row(L("直译", "Literally"), literal, emphasized: false) }
@@ -549,21 +552,16 @@ struct SafetyCard: View {
             VStack(alignment: .leading, spacing: 5) {
                 step("1", L("先接住 TA：温和地问一句「你现在安全吗？」", "Reach out first: gently ask, \"Are you safe right now?\""))
                 step("2", L("陪着 TA，认真听，不急着讲道理", "Stay with them and listen — don't rush to give advice"))
-                step("3", L("如果 TA 提到具体打算、正在伤害自己或突然联系不上，马上联系 TA 身边的人，或拨打 120 / 110",
+                step("3", L("如果 TA 提到具体打算、正在伤害自己或突然联系不上，马上联系 TA 身边的人，或拨打当地的急救电话（美国是 911）",
                             "If they mention a plan, are hurting themselves, or suddenly go silent, contact someone near them right away or call 911 (or your local emergency number)"))
             }
-            if AppLanguage.current == .en {
-                HStack(spacing: 8) {
-                    Hotline(name: "Call or text (US)", number: "988")
-                    Hotline(name: "Crisis Text Line", number: "HOME → 741741")
-                }
-                Text("Outside the US: findahelpline.com").font(.system(size: 10.5)).foregroundStyle(.secondary).textSelection(.enabled)
-            } else {
-                HStack(spacing: 8) {
-                    Hotline(name: "心理援助热线", number: "12356")
-                    Hotline(name: "希望24热线", number: "400-161-9995")
-                }
+            // 对方写英文，多半在国外：给对方所在地能用的资源，不按界面语言给国内热线
+            HStack(spacing: 8) {
+                Hotline(name: L("美国：电话或短信", "Call or text (US)"), number: "988")
+                Hotline(name: L("危机短信热线", "Crisis Text Line"), number: "HOME → 741741")
             }
+            Text(L("其他国家和地区：findahelpline.com", "Outside the US: findahelpline.com"))
+                .font(.system(size: 10.5)).foregroundStyle(.secondary).textSelection(.enabled)
         }
         .padding(12)
         .card(tint: Theme.danger)

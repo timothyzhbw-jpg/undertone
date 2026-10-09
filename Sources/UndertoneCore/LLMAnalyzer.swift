@@ -181,7 +181,8 @@ public struct LLMAnalyzer: EmotionAnalyzer {
         }
         let consistency = canonicalConsistency(json["consistency"] as? String)
         let reading = json["reading"] as? String
-        let canonicalReading = Vocabulary.canonical(reading, in: Vocabulary.readings) ?? reading
+        // 小模型偶尔把情绪词（「冷淡」）填进话外音类型：认不出就不要这个标签，解释照常显示
+        let canonicalReading = Vocabulary.canonical(reading, in: Vocabulary.readings)
         if consistency == "反话" || canonicalReading == "反话" { flags[EmotionFlag.sarcasm.rawValue] = 1 }
         // 英文提示词让模型输出英文标签，这里统一换回中文规范值；认不出的原样保留。
         let emotion = json["emotion"] as? String

@@ -82,6 +82,10 @@ final class CrossCulturalTests: XCTestCase {
         XCTAssertEqual(sarcastic.confidence, 3, "把握限制在 1–3")
         XCTAssertNil(sarcastic.cultureNote, "空白的说明不显示")
 
+        let offList = try LLMAnalyzer.report(from: #"{"reading": "冷淡", "why": "很冷淡的一句话。"}"#, message: latest, engine: "t", latencyMs: 1)
+        XCTAssertNil(offList.reading, "词表外的词不当成话外音类型")
+        XCTAssertEqual(offList.cultureNote, "很冷淡的一句话。")
+
         // 情绪视角的旧结果没有这些字段，解码不能出错
         let old = try JSONDecoder().decode(EmotionReport.self, from: JSONEncoder().encode(
             EmotionReport(message: latest, emotion: "平静", intensity: 0, flags: [:], engine: "t", latencyMs: 1)))

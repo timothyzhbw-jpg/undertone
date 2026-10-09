@@ -2,7 +2,7 @@
 
 **Reads the subtext in English messages, and explains it in Chinese.**
 
-[中文说明](README.zh-CN.md)
+**[Download for Mac](https://github.com/timothyzhbw-jpg/undertone/releases/latest)** · [中文说明](README.zh-CN.md)
 
 Undertone is a macOS floating panel for Chinese speakers who study, work or trade in English. When a buyer writes *"We'll review it internally and get back to you"*, a manager says *"That's an interesting idea, let's keep it in mind"*, or a professor sends *"Just checking in"*, Undertone tells you:
 
@@ -57,7 +57,9 @@ chat window ──ScreenCaptureKit──▶ Apple Vision OCR + pixel layout dete
 
 ## Quick start
 
-macOS 14 or later, Xcode or the Command Line Tools (Swift 5.10+), and [Ollama](https://ollama.com).
+**Download:** get `Undertone-<version>.dmg` from [Releases](https://github.com/timothyzhbw-jpg/undertone/releases/latest), drag Undertone into Applications, then install [Ollama](https://ollama.com) and run `ollama pull qwen3.5:4b`. Undertone isn't notarized, so macOS blocks the first launch: open System Settings → Privacy & Security and click **Open Anyway**, or run `xattr -dr com.apple.quarantine /Applications/Undertone.app`.
+
+**Build from source:** macOS 14 or later, Xcode or the Command Line Tools (Swift 5.10+), and [Ollama](https://ollama.com).
 
 ```bash
 ollama pull qwen3.5:4b

@@ -2,7 +2,7 @@
 
 **读懂英文消息里的话外音，用中文讲给你听。**
 
-[English](README.md)
+**[下载 Mac 版](https://github.com/timothyzhbw-jpg/undertone/releases/latest)** · [English](README.md)
 
 Undertone 是一个 macOS 悬浮面板，给在英语环境里上学、工作、做外贸的中文用户用。客户说 *"We'll review it internally and get back to you"*，上司说 *"That's an interesting idea, let's keep it in mind"*，老师发来一句 *"Just checking in"*，Undertone 会告诉你：
 
@@ -42,7 +42,9 @@ Undertone 是一个 macOS 悬浮面板，给在英语环境里上学、工作、
 
 ## 用起来
 
-需要 macOS 14 以上、Xcode 或 Command Line Tools（Swift 5.10+）、[Ollama](https://ollama.com)。
+**直接下载**：在 [Releases](https://github.com/timothyzhbw-jpg/undertone/releases/latest) 下载 `Undertone-版本号.dmg`，把 Undertone 拖进「应用程序」，再装好 [Ollama](https://ollama.com) 并运行 `ollama pull qwen3.5:4b`。Undertone 没有经过苹果公证，第一次打开会被拦：到 系统设置 → 隐私与安全性，点「仍要打开」；或者运行 `xattr -dr com.apple.quarantine /Applications/Undertone.app`。
+
+**从源码构建**：需要 macOS 14 以上、Xcode 或 Command Line Tools（Swift 5.10+）、[Ollama](https://ollama.com)。
 
 ```bash
 ollama pull qwen3.5:4b

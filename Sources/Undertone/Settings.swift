@@ -124,6 +124,10 @@ final class AppSettings: ObservableObject {
         switch llmProvider {
         case .ollama:
             config.llm = .ollama(baseURL: try url(ollamaURL), model: ollamaModel)
+            if TunedModel.isTuned(ollamaModel) {
+                config.llmPreset = TunedModel.preset
+                config.auxiliaryLLM = .ollama(baseURL: try url(ollamaURL), model: TunedModel.standardModel)
+            }
         case .openai:
             guard !openAIKey.isEmpty else {
                 throw AnalyzerError.badResponse(L("还没填 API Key：设置 → 分析引擎 → OpenAI 兼容", "No API key yet: Settings → Analysis engine → OpenAI-compatible"))

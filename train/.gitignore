@@ -3,3 +3,4 @@ runs/
 data_*/
 __pycache__/
 *.log
+models

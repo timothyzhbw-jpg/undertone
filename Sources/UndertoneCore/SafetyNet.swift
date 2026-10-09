@@ -28,6 +28,8 @@ public enum SafetyNet {
         #"(?i:want (it all|everything) to (stop|end))"#, #"(?i:(don['’]?t|do not) see the point (of|in) (anything|living|life|going on))"#,
         #"(?i:giv(e|ing) away (all )?(of )?my (stuff|things|belongings))"#,
         #"(?i:goodbye forever)"#, #"(?i:(suicide|goodbye) (note|letter))"#, #"(?i:won['’]?t be (around|here) (much longer|for long|anymore))"#,
+        // 绝望感：「什么都不会好起来」「对一切都累了」（2026-10-09 新留出集里三个模型都漏了这一类）
+        #"(?i:(never|not ever|n['’]?t ever) (going to|gonna) get (any )?better)"#, #"(?i:(tired|sick|exhausted) of (everything|it all|living|being alive))"#,
     ]
 
     private static let regex = try! NSRegularExpression(pattern: patterns.map { "(?:\($0))" }.joined(separator: "|"))
@@ -77,6 +79,12 @@ public enum MoneyNet {
         #"(?i:(new|changed|updated|different|another) (bank|beneficiary|receiving|company) account)"#,
         #"(?i:(bank|beneficiary|payment|remittance|account) (details|information|info|account) (has|have) (been )?(changed|updated))"#,
         #"(?i:(pay|send|remit|transfer|wire) .{0,40}(to|into) (the|our|this|my) (new|other|updated|personal) account)"#,
+        // 同一类骗局的其他常见说法：「换了银行」「付到下面/附件里的账户」「改收款人」「先交注册费、手续费」
+        #"(?i:(switched|changed|moved) (our |the |to a (new|different) )?banks?\b)"#,
+        #"(?i:(pay|send|remit|transfer|wire) .{0,40}(to|into) the account (below|attached|in the attach))"#,
+        #"(?i:update (the |our )?(beneficiary|bank details|payment details|remittance))"#,
+        #"(?i:(registration|processing|handling|certification|customs|release) fee)"#,
+        #"(?i:payments? (to|into) (our|the|a|this) new (bank|account))"#,
     ]
 
     private static let regex = try! NSRegularExpression(pattern: patterns.map { "(?:\($0))" }.joined(separator: "|"))

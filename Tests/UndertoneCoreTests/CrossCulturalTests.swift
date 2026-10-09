@@ -112,13 +112,20 @@ final class CrossCulturalTests: XCTestCase {
                      "Kindly remit the balance to our new bank account below.",
                      "Our beneficiary details have been updated, please use the information below.",
                      "Please send the deposit to the new account today.",
-                     "Pay the remaining 70% into our updated account."] {
+                     "Pay the remaining 70% into our updated account.",
+                     "Our company switched banks, please wire the deposit today.",
+                     "Kindly transfer the balance to the account below.",
+                     "Please update the beneficiary before releasing the payment.",
+                     "You need to pay a small registration fee before we place the order.",
+                     "Please direct all future payments to our new bank in Singapore."] {
             XCTAssertTrue(MoneyNet.matches(text), text)
         }
         for text in ["Payment has been sent. Please find the bank slip attached.",
                      "We opened a new office in Hamburg.",
                      "I updated the account settings on the portal.",
-                     "Received, thank you. We'll confirm the order quantity by Thursday."] {
+                     "Received, thank you. We'll confirm the order quantity by Thursday.",
+                     "The bank holiday pushed our shipment back a day.",
+                     "Thanks for registering for the trade show!"] {
             XCTAssertFalse(MoneyNet.matches(text), text)
         }
     }
@@ -198,5 +205,82 @@ final class InnerQuoteRepairTests: XCTestCase {
 
         // 本来就合法的 JSON 不受影响
         XCTAssertEqual(LLMAnalyzer.escapeInnerQuotes(#"{"a": "b \"c\"", "d": [1, "e"]}"#), #"{"a": "b \"c\"", "d": [1, "e"]}"#)
+    }
+}
+
+/// 微调模型只管读话外音；发之前看看用标准模型。
+final class TunedModelConfigTests: XCTestCase {
+    private let presets = URL(fileURLWithPath: #filePath).deletingLastPathComponent().appending(path: "../../presets").standardized
+
+    func testTunedModelUsesShortPromptAndStandardModelForDrafts() throws {
+        var config = AnalyzerConfig()
+        config.presets = presets
+        config.llm = .ollama(baseURL: URL(string: "http://127.0.0.1:11434")!, model: TunedModel.name)
+        config.llmPreset = TunedModel.preset
+        config.auxiliaryLLM = .ollama(baseURL: URL(string: "http://127.0.0.1:11434")!, model: TunedModel.standardModel)
+        let analyzer = try XCTUnwrap(config.makeAnalyzer() as? LLMAnalyzer)
+        XCTAssertEqual((analyzer.backend as? OllamaBackend)?.model, TunedModel.name)
+        XCTAssertTrue(analyzer.prompt.examples.isEmpty)
+        let checker = try config.makeDraftChecker()
+        XCTAssertEqual((checker.backend as? OllamaBackend)?.model, TunedModel.standardModel)
+        XCTAssertTrue(TunedModel.isTuned("undertone-subtext:latest"))
+        XCTAssertFalse(TunedModel.isTuned("qwen3.5:4b"))
+    }
+}
+
+/// 截图 → 粘贴模式的文字。
+final class ScreenshotTranscriptTests: XCTestCase {
+    func testChatScreenshotKeepsSpeakers() {
+        let messages = [
+            ChatMessage(speaker: .me, text: "Here is the quote.", top: 0.1),
+            ChatMessage(speaker: .them, text: "Thanks!\nWe'll review it.", sender: "John", top: 0.3),
+            ChatMessage(speaker: .them, text: "Let me check with my team.", top: 0.5),
+        ]
+        let text = ScreenshotTranscript.make(messages: messages, ocrText: [])
+        XCTAssertEqual(text, "Me: Here is the quote.\nJohn: Thanks! We'll review it.\nJohn: Let me check with my team.")
+        let parsed = ChatTranscript.parse(text)
+        XCTAssertEqual(parsed.messages.first?.speaker, .me)
+        XCTAssertEqual(parsed.messages.last?.speaker, .them)
+        XCTAssertEqual(parsed.messages.last?.text, "Let me check with my team.")
+    }
+
+    func testOneSidedScreenshotBecomesOneMessage() {
+        // 邮件被认成三段「对方」：连成一条，落款不能变成「最新一条」
+        let email = [ChatMessage(speaker: .them, text: "Hi Lily,", top: 0),
+                     ChatMessage(speaker: .them, text: "We will not be moving forward\nat this time.", top: 1),
+                     ChatMessage(speaker: .them, text: "Best regards, Mark", top: 2)]
+        let text = ScreenshotTranscript.make(messages: email, ocrText: [])
+        XCTAssertEqual(text, "Hi Lily, We will not be moving forward at this time. Best regards, Mark")
+        XCTAssertEqual(ChatTranscript.parse(text).messages.count, 1)
+    }
+
+    func testUnnamedBubblesGetAPlaceholder() {
+        let text = ScreenshotTranscript.make(messages: [ChatMessage(speaker: .them, text: "ok", top: 0),
+                                                        ChatMessage(speaker: .me, text: "sure", top: 1),
+                                                        ChatMessage(speaker: .them, text: "thanks", top: 2)], ocrText: [])
+        XCTAssertEqual(text, "Them: ok\nMe: sure\nThem: thanks")
+        XCTAssertEqual(ChatTranscript.parse(text).messages.count, 3)
+    }
+
+    func testEmailScreenshotBecomesOneMessage() {
+        let text = ScreenshotTranscript.make(messages: [], ocrText: ["Hi Lily,", "Thanks for the quote. ", "", "We'll circle back next quarter."])
+        XCTAssertEqual(text, "Hi Lily, Thanks for the quote. We'll circle back next quarter.")
+        XCTAssertEqual(ChatTranscript.parse(text).messages.last?.speaker, .them)
+    }
+}
+
+/// 绝望感一类的轻生信号：认真对待；日常的抱怨和夸张不能触发。
+final class HopelessnessSafetyTests: XCTestCase {
+    func testHopelessnessIsCaught() {
+        for text in ["i'm just tired of everything. i don't think it's ever going to get better",
+                     "it's never going to get better, is it",
+                     "honestly i'm so tired of it all"] {
+            XCTAssertTrue(SafetyNet.matches(text), text)
+        }
+        for text in ["this traffic is never going to end lol", "I'm tired of this printer",
+                     "the weather is going to get better tomorrow", "sick of meetings today 🙄",
+                     "Things are getting better at the new office"] {
+            XCTAssertFalse(SafetyNet.matches(text), text)
+        }
     }
 }

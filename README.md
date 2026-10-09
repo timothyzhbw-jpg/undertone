@@ -53,7 +53,7 @@ chat window ──ScreenCaptureKit──▶ Apple Vision OCR + pixel layout dete
 - **Analysis.** A Chinese system prompt with 15 worked examples covering trade, workplace, campus, friends, hard negatives, a scam and a crisis message, with a JSON answer. The model explains the convention and the real meaning first, and picks the label last.
 - **Robust parsing.** Small models often quote English phrases inside JSON strings without escaping them. The parser repairs that instead of failing.
 - **Per-contact memory.** Notes such as "first order 5,000 pcs by end of March" are saved only when you confirm.
-- **Paste mode** for email, Slack, Teams or anything else you can copy. **Voice messages** can optionally be transcribed with Whisper via [deAPI](https://deapi.ai), only when you tap Listen.
+- **Paste mode** for email, Slack, Teams or anything else you can copy, and **screenshots**: paste or drop a phone chat or email screenshot and it's read on your Mac (OCR plus the same bubble detector), shown as editable text, then analyzed. **Voice messages** can optionally be transcribed with Whisper via [deAPI](https://deapi.ai), only when you tap Listen.
 
 ## Quick start
 
@@ -82,9 +82,10 @@ All sets are hand-written English messages with expected readings and must-raise
 |---|---|---|
 | [`eval/crosscultural.jsonl`](eval/crosscultural.jsonl) (development) | 42 | reading 32/40 (80%), signals 3/3, false alarms 1/18 |
 | [`eval/crosscultural.holdout.jsonl`](eval/crosscultural.holdout.jsonl) (held out, not used for tuning) | 29 | reading 19/28 (68%) |
+| [`eval/crosscultural.holdout2.jsonl`](eval/crosscultural.holdout2.jsonl) (fresh set written after all tuning) | 40 | reading 31/39 (79%), signals 6/8, false alarms 0/10 |
 | [`eval/draft.jsonl`](eval/draft.jsonl) (Check before you send) | 26 | verdict 23/26 (88%) |
 
-The drop from 80% to 68% between the development and held-out sets is the honest cost of tuning a prompt against 42 examples. Run the evaluations yourself:
+The first held-out set scored 68%, the second 79%: with sets this small, a handful of items moves the score a lot. Run the evaluations yourself:
 
 ```bash
 swift run Undertone --eval eval/crosscultural.jsonl results.jsonl
@@ -98,16 +99,21 @@ python3 scripts/score_eval.py eval/crosscultural.jsonl results.jsonl
 - **Supervised:** gold readings written by hand, with explanations and replies written by the prompted model given the gold answer.
 - **Self-training (no human labels):** the prompted model samples each message three times, and only unanimous answers are kept (167 of 288, 87% correct against the gold labels).
 
-| Model | Dev (40) | Held out (28) | Missed / false signals | Time per message |
+| Model | Dev (40) | Held out (28) | **Fresh held out (39)** | Time per message |
 |---|---|---|---|---|
-| Prompted qwen3.5:4b (instruct + 15 examples) | 80% | 68% | 2 / 2 | 5.9 s |
+| **Prompted qwen3.5:4b (instruct + 15 examples)** | 80% | 68% | **79%** | 5.9 s |
 | Base model, short prompt, no fine-tuning | 31% | — | — | 4.1 s |
-| LoRA, supervised (255) | 80% | 61% | 3 / 1 | 4.0 s |
-| LoRA, self-training only (145) | 70% | 71% | 2 / 2 | 3.7 s |
-| **LoRA, supervised + self-training (400)** | **85%** | **68%** | 2 / **0** | **3.9 s** |
-| LoRA on 8 layers instead of 5 | 78% | 71% | **1** / **0** | 4.1 s |
+| LoRA, supervised (255) | 80% | 61% | — | 4.0 s |
+| LoRA, self-training only (145) | 70% | 71% | — | 3.7 s |
+| LoRA, supervised + self-training (400) | 85% | 68% | 62%\* | 3.9 s |
+| LoRA on 8 layers instead of 5 | 78% | 71% | — | 4.1 s |
+| Same, plus 36 targeted messages (30 more minutes) | 78% | 75% | 66%\* | 4.1 s |
 
-Fine-tuning lifts the base model from 31% to the level of the prompted instruct model, with no false alarms, and runs about 35% faster because the long prompt is gone. On 28 held-out items, the differences between the fine-tuned variants are within noise. Details, scripts and the pitfalls hit along the way are in [`train/RESULTS.md`](train/RESULTS.md). One of those pitfalls, a per-token loop when training Qwen3.5's Gated DeltaNet layers, is reported upstream as [ml-explore/mlx-lm#1956](https://github.com/ml-explore/mlx-lm/issues/1956).
+\* Exported to Ollama as a 4-bit model, which scored 2 points lower than MLX on the dev set.
+
+Fine-tuning lifts the base model from 31% to about the prompted model's level on the development and first held-out sets, and runs about 30% faster because the long prompt is gone. **On a fresh held-out set written afterwards, though, the prompted model wins clearly**: 79% against 62–66% for the fine-tuned models (exported to Ollama), which also missed more scam and crisis signals. The small, hand-written training pool doesn't generalize as well as a strong instruct model with good examples. So the app keeps the prompted model as the default, and offers the fine-tuned one only as an experimental **Fast** mode ([how to build it](train/ollama/README.md)).
+
+Details, scripts and the pitfalls hit along the way are in [`train/RESULTS.md`](train/RESULTS.md). One of those pitfalls, a per-token loop when training Qwen3.5's Gated DeltaNet layers, is reported upstream as [ml-explore/mlx-lm#1956](https://github.com/ml-explore/mlx-lm/issues/1956).
 
 ## Privacy and limits
 
@@ -118,7 +124,7 @@ Fine-tuning lifts the base model from 31% to the level of the prompted instruct 
 ## Development
 
 ```bash
-swift build && swift test                  # build, then 130 unit tests (parsing, layout, prompts, safety nets)
+swift build && swift test                  # build, then 136 unit tests (parsing, layout, prompts, safety nets)
 swift run Undertone --inspect chat.png     # run recognition on one screenshot
 swift run Undertone --render-previews out  # render every panel state with fictional data
 ```

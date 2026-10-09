@@ -58,6 +58,22 @@ Reading accuracy on the development set (40 scored items) and the held-out set (
 
 *Not happy* improved (held out 1/4 → 3/4, dev 2/3 → 3/3), but *a polite no* slipped on dev (8/9 → 5/9) and validation loss rose from 0.563 to 0.599. Overall it's a trade-off within noise, not a gain. The held-out set has now been used to compare several models, so it no longer counts as unseen: the next round needs fresh test data and, above all, more real training messages.
 
+## Fresh held-out set and export to Ollama (2026-10-09)
+
+The two LoRA arms were merged into the original bf16 weights ([`merge_lora.py`](merge_lora.py)) and imported into Ollama as 4-bit models ([`ollama/`](ollama/README.md)). On the development set, the Ollama export of SU scored 32/40 (MLX: 34/40), probably because of re-quantizing after merging.
+
+Then a **fresh held-out set** of 40 messages ([`eval/crosscultural.holdout2.jsonl`](../eval/crosscultural.holdout2.jsonl)) was written after all tuning, checked against everything seen before, and run once per model:
+
+| Model | Reading | Signals caught | False alarms | Median time |
+|---|---|---|---|---|
+| **Prompted instruct qwen3.5:4b + 15 examples** | **31/39 (79%)** | **6/8** | 0/10 | 6.3 s |
+| SU, fine-tuned, Ollama q4_K_M | 24/39 (62%) | 4/8 | 0/10 | 4.5 s |
+| SU2, fine-tuned, Ollama q4_K_M | 25/38 (66%) | 5/8 | 1/10 | 4.7 s |
+
+**The fine-tuned models don't generalize as well.** On the development and first held-out sets they looked level with the prompted model, but both of those had been looked at while tuning. On genuinely new messages the prompted model is 13–17 points better and catches more signals. The fine-tuned models are about 30% faster. The app therefore keeps the prompted model as the default and offers the fine-tuned one only as an experimental Fast mode.
+
+All three models missed one hopelessness message ("tired of everything… never going to get better"), and the fine-tuned ones missed a "pay our new bank" scam. Keyword patterns for both were added to the safety nets *after* seeing these items, so those two items no longer count as unseen for the keyword nets.
+
 ## Pitfalls hit along the way
 
 1. **MLX and Anaconda's MPI.** MLX found Anaconda's MPICH, decided it wasn't Open MPI, and aborted. [`mlx_run.py`](mlx_run.py) points `MLX_MPI_LIBNAME` at a missing library and uses the ring backend.

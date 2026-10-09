@@ -24,8 +24,8 @@ struct ManualView: View {
             }
             editor
             if transcript.isEmpty {
-                Text(L("在聊天软件里选中几条消息复制，粘贴到这里。支持「John: 内容」和「John — Today at 9:40 PM」换行两种格式；认不出名字的行会算作对方说的。",
-                       "Copy a few messages from your messaging app and paste them here. Works with \"John: message\", \"John — Today at 9:40 PM\" on its own line, and \"[10/3/26, 9:40 PM] John: message\" exports. Lines without a name count as theirs."))
+                Text(L("也可以直接粘贴或拖进一张聊天、邮件截图，在本机识别。\n在聊天软件里选中几条消息复制，粘贴到这里。支持「John: 内容」和「John — Today at 9:40 PM」换行两种格式；认不出名字的行会算作对方说的。",
+                       "You can also paste or drop a screenshot of a chat or an email; it's read on this Mac.\nCopy a few messages from your messaging app and paste them here. Works with \"John: message\", \"John — Today at 9:40 PM\" on its own line, and \"[10/3/26, 9:40 PM] John: message\" exports. Lines without a name count as theirs."))
                     .font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             } else if latest == nil {
                 Text(L("没找到对方发的消息。如果整段都是你自己说的，就没什么可分析的。", "No messages from them found. If it's all you talking, there's nothing to analyze."))
@@ -38,6 +38,25 @@ struct ManualView: View {
     }
 
     @ViewBuilder private var editor: some View {
+        if editable {
+            textEditor
+                .overlay {
+                    if monitor.readingScreenshot {
+                        HStack(spacing: 6) { Spinner(size: 11); Text(L("正在识别截图…", "Reading the screenshot…")).font(.system(size: 12)) }
+                            .padding(8).background(.regularMaterial, in: Capsule())
+                    }
+                }
+                // 把截图拖进来也行
+                .onDrop(of: [.image, .fileURL], isTargeted: nil) { providers in
+                    Self.loadImage(from: providers) { image in monitor.analyzeScreenshot(image) }
+                    return true
+                }
+        } else {
+            textEditor
+        }
+    }
+
+    @ViewBuilder private var textEditor: some View {
         if editable {
             TextEditor(text: $transcript)
                 .font(.system(size: 12))
@@ -57,9 +76,15 @@ struct ManualView: View {
     private var controls: some View {
         HStack(spacing: 6) {
             Button(L("粘贴", "Paste")) {
-                transcript = NSPasteboard.general.string(forType: .string) ?? transcript
+                // 剪贴板里是图片（截图）就识别图片，否则粘贴文字
+                if let image = Self.image(from: NSPasteboard.general) {
+                    monitor.analyzeScreenshot(image)
+                } else {
+                    transcript = NSPasteboard.general.string(forType: .string) ?? transcript
+                }
             }
             .buttonStyle(PillButtonStyle())
+            .help(L("粘贴文字，或者粘贴一张聊天、邮件截图", "Paste text, or a screenshot of a chat or email"))
             if !transcript.isEmpty {
                 Button(L("清空", "Clear")) { transcript = "" }.buttonStyle(PillButtonStyle(tint: .secondary))
             }
@@ -77,6 +102,26 @@ struct ManualView: View {
             }
             .buttonStyle(PillButtonStyle(filled: true))
             .disabled(latest == nil || monitor.analyzing)
+        }
+    }
+}
+
+extension ManualView {
+    static func image(from pasteboard: NSPasteboard) -> CGImage? {
+        guard let image = NSImage(pasteboard: pasteboard) else { return nil }
+        var rect = CGRect(origin: .zero, size: image.size)
+        return image.cgImage(forProposedRect: &rect, context: nil, hints: nil)
+    }
+
+    static func loadImage(from providers: [NSItemProvider], then handle: @escaping @MainActor (CGImage) -> Void) {
+        guard let provider = providers.first else { return }
+        if provider.canLoadObject(ofClass: NSImage.self) {
+            _ = provider.loadObject(ofClass: NSImage.self) { object, _ in
+                guard let image = object as? NSImage else { return }
+                var rect = CGRect(origin: .zero, size: image.size)
+                guard let cg = image.cgImage(forProposedRect: &rect, context: nil, hints: nil) else { return }
+                Task { @MainActor in handle(cg) }
+            }
         }
     }
 }

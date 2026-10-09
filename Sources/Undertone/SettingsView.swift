@@ -11,6 +11,8 @@ struct SettingsView: View {
     @State private var windows: [WindowOption] = []
     @State private var check: CheckState = .idle
     @State private var deapiCheck: CheckState = .idle
+    /// 本机 Ollama 里装了哪些模型（决定「快速」能不能选）。
+    @State private var installedModels: [String] = []
 
     enum CheckState: Equatable { case idle, checking, ok(String), failed(String) }
 
@@ -167,7 +169,23 @@ struct SettingsView: View {
         switch settings.llmProvider {
         case .ollama:
             TextField(L("Ollama 地址", "Ollama URL"), text: $settings.ollamaURL)
-            TextField(L("模型", "Model"), text: $settings.ollamaModel)
+            Picker(L("模型", "Model"), selection: $settings.ollamaModel) {
+                Text(L("标准：qwen3.5:4b + 示例（推荐）", "Standard: qwen3.5:4b + examples (recommended)")).tag(TunedModel.standardModel)
+                Text(L("快速：Undertone 微调模型（实验）", "Fast: Undertone fine-tuned model (experimental)")).tag(TunedModel.name)
+                    .disabled(!installedModels.contains { $0.hasPrefix(TunedModel.name) })
+                if ![TunedModel.standardModel, TunedModel.name].contains(settings.ollamaModel) {
+                    Text(settings.ollamaModel).tag(settings.ollamaModel)
+                }
+            }
+            .task { await loadInstalledModels() }
+            if TunedModel.isTuned(settings.ollamaModel) {
+                Text(L("只学了读话外音的本地微调模型：每条约快三成，但在全新的测试集上明显不如标准模型准（62% 对 79%），也更容易漏掉骗局。适合想试试的人，日常建议用标准模型。「发之前看看」和看表情图仍用标准模型。",
+                       "A local model fine-tuned only for reading subtext: about 30% faster per message, but clearly less accurate than the standard model on fresh test messages (62% vs 79%) and more likely to miss scams. Worth a try, but use Standard day to day. Draft checks and emoji images still use the standard model."))
+                    .font(.system(size: 11)).foregroundStyle(.secondary)
+            } else if !installedModels.isEmpty, !installedModels.contains(where: { $0.hasPrefix(TunedModel.name) }) {
+                Text(L("快速模式需要先在本机导入微调模型，见 train/ollama。", "Fast mode needs the fine-tuned model imported locally first — see train/ollama."))
+                    .font(.system(size: 11)).foregroundStyle(.secondary)
+            }
             Toggle(L("没在运行时自动启动 Ollama", "Start Ollama automatically if it isn't running"), isOn: $settings.autoStartOllama)
             Text(L("只对本机地址生效。本地起不来时会如实报错，不会自动改用云端模型。",
                    "Only for local addresses. If it can't start, Undertone tells you — it never switches to a cloud model on its own."))
@@ -203,6 +221,10 @@ struct SettingsView: View {
         case .ok(let text): Label(text, systemImage: "checkmark.circle.fill").foregroundStyle(.green)
         case .failed(let text): Label(text, systemImage: "xmark.octagon.fill").foregroundStyle(.red)
         }
+    }
+
+    private func loadInstalledModels() async {
+        installedModels = (try? await modelNames(settings.ollamaURL, path: "api/tags", key: "models", field: "name")) ?? []
     }
 
     private func loadWindows() async {

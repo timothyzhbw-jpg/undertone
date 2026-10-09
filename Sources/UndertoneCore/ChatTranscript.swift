@@ -94,3 +94,32 @@ public enum ChatTranscript {
         }
     }
 }
+
+/// 截图（手机聊天截图、邮件截图）识别出来的内容 → 手动粘贴模式能读的文字，让用户看得到、改得了再分析。
+public enum ScreenshotTranscript {
+    /// 截图里认不出对方名字时用的占位名。粘贴模式里没名字的行会接到上一条后面，所以每条都要带名字；
+    /// 这个占位名不当成联系人（见 Monitor.analyzeManual）。
+    public static let placeholderName = "Them"
+
+    /// messages：版面分析拼好的消息；ocrText：按从上到下排好的 OCR 文字（认不出气泡时用）。
+    /// 认出了对方的气泡：每条都写成「名字: 内容」，我说的是「Me」，对方用认出的名字（没有就用占位名）。
+    /// 只有对方一方（邮件截图，或对方连发的几条）：连成一条，当作对方说的——不然邮件最后的落款会被当成「最新一条」。
+    public static func make(messages: [ChatMessage], ocrText: [String]) -> String {
+        let theirs = messages.filter { $0.speaker == .them }
+        guard !theirs.isEmpty, messages.contains(where: { $0.speaker == .me }) else {
+            let parts = theirs.isEmpty ? ocrText : theirs.map(\.text)
+            return parts.map { $0.replacingOccurrences(of: "\n", with: " ").trimmingCharacters(in: .whitespaces) }
+                .filter { !$0.isEmpty }.joined(separator: " ")
+        }
+        let names = messages.compactMap { $0.speaker == .them ? $0.sender : nil }
+        let usual = Dictionary(names.map { ($0, 1) }, uniquingKeysWith: +).max { $0.value < $1.value }?.key ?? placeholderName
+        return messages.compactMap { message -> String? in
+            let text = message.text.replacingOccurrences(of: "\n", with: " ")
+            switch message.speaker {
+            case .me: return "Me: \(text)"
+            case .them: return "\(message.sender ?? usual): \(text)"
+            case .system: return nil
+            }
+        }.joined(separator: "\n")
+    }
+}

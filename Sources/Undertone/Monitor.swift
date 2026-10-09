@@ -364,8 +364,37 @@ final class Monitor: ObservableObject {
         let latest = parsed.messages[index]
         let context = Array(parsed.messages[..<index].suffix(10))
         analysisError = nil
-        pending = (context, latest, manualContact ?? latest.sender, [])
+        // 截图里认不出名字时的占位名不当成联系人
+        let sender = latest.sender == ScreenshotTranscript.placeholderName ? nil : latest.sender
+        pending = (context, latest, manualContact ?? sender, [])
         if !analyzing { Task { await drain() } }
+    }
+
+    /// 粘贴模式里放进来一张截图（手机聊天截图、邮件截图）：在本机识别成文字，填进粘贴框给用户看，再接着分析。
+    @Published private(set) var readingScreenshot = false
+
+    func analyzeScreenshot(_ image: CGImage) {
+        guard !readingScreenshot else { return }
+        readingScreenshot = true
+        analysisError = nil
+        Task {
+            defer { readingScreenshot = false }
+            do {
+                let result = try await Task.detached(priority: .userInitiated) { try ChatReader.read(image) }.value
+                let ocr = result.lines.sorted { $0.box.minY < $1.box.minY }.map(\.text)
+                let transcript = ScreenshotTranscript.make(messages: result.messages, ocrText: ocr)
+                guard !transcript.isEmpty else {
+                    analysisError = L("截图里没认出文字。换一张清楚点的试试。", "Couldn't find any text in that screenshot. Try a clearer one.")
+                    return
+                }
+                log.notice("screenshot read: \(result.messages.count, privacy: .public) messages")
+                manualTranscript = transcript
+                manualContact = nil
+                analyzeManual(transcript)
+            } catch {
+                analysisError = L("截图识别失败：\(error.localizedDescription)", "Couldn't read the screenshot: \(error.localizedDescription)")
+            }
+        }
     }
 
     /// 「发之前看看」：检查用户要发的英文回复。用和分析一样的大模型（默认本机），聊天上下文取最近 10 条。
@@ -454,7 +483,8 @@ final class Monitor: ObservableObject {
     private func describeImage(_ job: Job) async -> ChatMessage {
         let images = job.images.compactMap(Self.png)
         guard !images.isEmpty, settings.readImages,
-              let backend = try? settings.analyzerConfig().llm.backend(), !noVision.contains(backend.name) else { return job.latest }
+              let config = try? settings.analyzerConfig(),
+              case let backend = (config.auxiliaryLLM ?? config.llm).backend(), !noVision.contains(backend.name) else { return job.latest }
         if let ollama = backend as? OllamaBackend, await ollama.supportsVision() == false {
             noVision.insert(backend.name)
             log.notice("model cannot read images, keeping placeholders")

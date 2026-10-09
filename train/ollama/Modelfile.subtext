@@ -1,0 +1,16 @@
+# Undertone 微调模型：Qwen3.5-4B-Base + 读话外音的 LoRA（train/merge_lora.py 合并）。
+# 模板和训练时 Qwen 的对话格式一致：思考段留空，回答完输出 <|im_end|>。
+FROM ../models/undertone-su-hf
+TEMPLATE """{{- if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}{{- range .Messages }}{{- if ne .Role "system" }}<|im_start|>{{ .Role }}
+{{ .Content }}<|im_end|>
+{{ end }}{{- end }}<|im_start|>assistant
+<think>
+
+</think>
+
+"""
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|endoftext|>"
+PARAMETER temperature 0.2

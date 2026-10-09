@@ -43,6 +43,8 @@ enum Inspector {
                 let sender = message.sender.map { "（\($0)）" } ?? ""
                 print("  \(who)\(sender)：\(message.text)")
             }
+            let ocrText = result.lines.sorted { $0.box.minY < $1.box.minY }.map(\.text)
+            print("\n粘贴截图时填进粘贴框的文字：\n" + ScreenshotTranscript.make(messages: result.messages, ocrText: ocrText))
             if analyze { runAnalysis(result.messages, image: image) }
             return true
         } catch {

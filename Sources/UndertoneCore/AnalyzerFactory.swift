@@ -42,12 +42,23 @@ public struct OpenAIPreset: Sendable, Identifiable, Equatable {
     public static func named(_ id: String) -> OpenAIPreset { all.first { $0.id == id } ?? all[0] }
 }
 
+/// 本地微调模型（train/ 训练、train/ollama/Modelfile.subtext 导入 Ollama）。只学了读话外音：用短提示、不带示例；
+/// 「发之前看看」和看表情图这些它没学过的事，交给标准模型。
+public enum TunedModel {
+    public static let name = "undertone-subtext"
+    public static let preset = "subtext.ft.zh.json"
+    public static let standardModel = "qwen3.5:4b"
+    public static func isTuned(_ model: String) -> Bool { model.hasPrefix("undertone-") }
+}
+
 /// 创建分析器所需的全部配置。
 public struct AnalyzerConfig: Sendable {
     public var llm: LLMSource = .localDefault
     public var presets: URL = Presets.directory
     /// 大模型提示词文件；评测微调过的模型时换成 subtext.ft.zh.json。
     public var llmPreset = "subtext.llm.zh.json"
+    /// 辅助任务（发之前看看、看表情图）用的模型；nil 时和读话外音用同一个。用微调模型时这里是标准模型。
+    public var auxiliaryLLM: LLMSource?
 
     public init() {}
 
@@ -60,12 +71,12 @@ public struct AnalyzerConfig: Sendable {
     /// 「发之前看看」：检查用户要发的英文回复。
     public func makeDraftChecker(relationship: String? = nil) throws -> DraftChecker {
         let prompt = try LLMPrompt.load(from: presets.appending(path: "draft.llm.zh.json"))
-        return DraftChecker(backend: backend(for: prompt), prompt: prompt, relationship: relationship)
+        return DraftChecker(backend: backend(for: prompt, source: auxiliaryLLM ?? llm), prompt: prompt, relationship: relationship)
     }
 
     /// 提示词更长的预设可以要更大的本地上下文。
-    private func backend(for prompt: LLMPrompt) -> ChatBackend {
-        let backend = llm.backend()
+    private func backend(for prompt: LLMPrompt, source: LLMSource? = nil) -> ChatBackend {
+        let backend = (source ?? llm).backend()
         guard var ollama = backend as? OllamaBackend, let length = prompt.contextLength else { return backend }
         ollama.contextLength = max(length, OllamaBackend.defaultContextLength)
         return ollama

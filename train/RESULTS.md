@@ -47,6 +47,17 @@ Reading accuracy on the development set (40 scored items) and the held-out set (
 - On 28 held-out items, one item is 3.6 points, so the differences between S, U, SU and SU8 are within noise. A larger held-out set is the next step before claiming a winner.
 - The held-out set has now been used once for this comparison. The next round needs fresh test data.
 
+## Follow-up: 30 more minutes on the weakest readings
+
+36 new messages for *just being polite*, *joking*, *a polite no* and *not happy* were added to the pool (batch `weak1`, checked against the evaluation sets). Starting from the SU adapter, training continued for one pass over those items (each twice) mixed with 150 earlier items, at learning rate 5e-5. That took 14 minutes.
+
+| Model | Dev | Held out | Signals missed | False alarms |
+|---|---|---|---|---|
+| SU (before) | 34/40 (85%) | 19/28 (68%) | 2 | 0 |
+| SU2 (after) | 31/40 (78%) | 21/28 (75%) | 1 | 1 |
+
+*Not happy* improved (held out 1/4 → 3/4, dev 2/3 → 3/3), but *a polite no* slipped on dev (8/9 → 5/9) and validation loss rose from 0.563 to 0.599. Overall it's a trade-off within noise, not a gain. The held-out set has now been used to compare several models, so it no longer counts as unseen: the next round needs fresh test data and, above all, more real training messages.
+
 ## Pitfalls hit along the way
 
 1. **MLX and Anaconda's MPI.** MLX found Anaconda's MPICH, decided it wasn't Open MPI, and aborted. [`mlx_run.py`](mlx_run.py) points `MLX_MPI_LIBNAME` at a missing library and uses the ring backend.

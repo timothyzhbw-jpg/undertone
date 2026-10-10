@@ -27,7 +27,7 @@
     "productName": "Undertone",
     "directories": {
       "output": "dist",
-      "buildResources": "build"
+      "buildResources": "assets"
     },
     "files": [
       "app/**",
@@ -58,7 +58,7 @@
           ]
         }
       ],
-      "icon": "build/icon.png"
+      "icon": "assets/icon.png"
     },
     "nsis": {
       "oneClick": false,
@@ -70,7 +70,7 @@
         "AppImage"
       ],
       "category": "Utility",
-      "icon": "build/icon.png",
+      "icon": "assets/icon.png",
       "artifactName": "Undertone-${version}-${arch}.${ext}",
       "syncDesktopName": true
     },
@@ -78,7 +78,7 @@
       "target": [
         "dir"
       ],
-      "icon": "build/icon.png",
+      "icon": "assets/icon.png",
       "identity": null
     }
   },

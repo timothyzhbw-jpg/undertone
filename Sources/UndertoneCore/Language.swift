@@ -16,6 +16,13 @@ public enum AppLanguage: String, CaseIterable, Sendable, Codable {
     public var name: String { self == .zh ? "中文" : "English" }
 
     public func pick(_ zh: String, _ en: String) -> String { self == .zh ? zh : en }
+
+    /// 日期和时间按界面语言显示：系统是中文、界面选英文时，不该出现「晚上7:38」。
+    public var locale: Locale {
+        let system = Locale.current
+        if (system.language.languageCode?.identifier == "zh") == (self == .zh) { return system }
+        return Locale(identifier: self == .zh ? "zh_Hans_CN" : "en_US")
+    }
 }
 
 /// 按当前语言挑文字。

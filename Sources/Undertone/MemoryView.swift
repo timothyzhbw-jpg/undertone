@@ -161,7 +161,7 @@ struct NoteRow: View {
                 .help(note.source == .ai ? L("AI 建议、你确认记下的", "Suggested by AI, confirmed by you") : L("你手动记下的", "Added by you"))
             Text(note.text).font(.system(size: 12.5)).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 4)
-            Text(note.date.formatted(.dateTime.month().day())).font(.system(size: 10)).foregroundStyle(.tertiary)
+            Text(note.date.formatted(.dateTime.month().day().locale(AppLanguage.current.locale))).font(.system(size: 10)).foregroundStyle(.tertiary)
             Button(action: delete) { Image(systemName: "xmark.circle.fill").foregroundStyle(.tertiary) }
                 .buttonStyle(.plain).opacity(hovering ? 1 : 0.35).help(L("删除", "Delete"))
         }
@@ -181,7 +181,7 @@ struct EntryRow: View {
                 .frame(width: AppLanguage.current == .en ? 78 : 30, alignment: .leading)
             Text(Placeholder.localized(entry.excerpt)).font(.system(size: 11.5)).foregroundStyle(.secondary).lineLimit(1)
             Spacer(minLength: 4)
-            Text(entry.date.formatted(.dateTime.month().day().hour().minute())).font(.system(size: 10)).foregroundStyle(.tertiary)
+            Text(entry.date.formatted(.dateTime.month().day().hour().minute().locale(AppLanguage.current.locale))).font(.system(size: 10)).foregroundStyle(.tertiary)
         }
     }
 }

@@ -134,6 +134,9 @@ final class MoneyNetTests: XCTestCase {
         }
         XCTAssertEqual(MoneyNet.apply(to: report("先借我 500 应应急")).flags["asks_money"], SafetyNet.probability)
         XCTAssertEqual(MoneyNet.apply(to: report("借我 500", money: 1)).flags["asks_money"], 1, "不覆盖模型更高的判断")
+        XCTAssertEqual(MoneyNet.apply(to: report("Interesting. Let me run this by my team and circle back.", money: 0.9)).flags["asks_money"], 0,
+                       "消息里没提钱和账户时，不信模型报的「要钱」")
+        XCTAssertEqual(MoneyNet.apply(to: report("Please settle the invoice this week.", money: 0.9)).flags["asks_money"], 0.9)
     }
 
     func testIgnoresEverydayTalk() {
@@ -168,4 +171,20 @@ final class CombinedAnalyzerTests: XCTestCase {
     }
 
 
+
+    func testEveryRequiredMoneyItemMentionsMoney() throws {
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().appending(path: "../..").standardized
+        var checked = 0
+        for file in ["eval/crosscultural.jsonl", "eval/crosscultural.holdout.jsonl", "eval/crosscultural.holdout2.jsonl", "train/pool_eval.jsonl"] {
+            let text = try String(contentsOf: root.appending(path: file), encoding: .utf8)
+            for line in text.split(whereSeparator: \.isNewline) {
+                let item = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(line.utf8)) as? [String: Any])
+                guard let flags = (item["expect"] as? [String: Any])?["flags"] as? [String], flags.contains("asks_money"),
+                      let message = item["text"] as? String else { continue }
+                XCTAssertTrue(MoneyNet.mentionsMoney(message), "\(file): \(message)")
+                checked += 1
+            }
+        }
+        XCTAssertGreaterThan(checked, 20)
+    }
 }

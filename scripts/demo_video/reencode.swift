@@ -25,15 +25,25 @@ if let audioTrack {
     writer.add(a); audioIn = a
 }
 reader.startReading(); writer.startWriting(); writer.startSession(atSourceTime: .zero)
-func pump(_ out: AVAssetReaderTrackOutput, _ input: AVAssetWriterInput) async {
-    while true {
-        while !input.isReadyForMoreMediaData { try? await Task.sleep(for: .milliseconds(5)) }
-        guard let sample = out.copyNextSampleBuffer() else { input.markAsFinished(); return }
-        input.append(sample)
+// 画面和声音要同时喂：写入器按时间交错，只喂一路时另一路会一直等，整个导出卡死
+final class Pump: @unchecked Sendable {
+    let output: AVAssetReaderTrackOutput, input: AVAssetWriterInput
+    init(_ output: AVAssetReaderTrackOutput, _ input: AVAssetWriterInput) { self.output = output; self.input = input }
+    func run(_ group: DispatchGroup) {
+        group.enter()
+        let queue = DispatchQueue(label: "pump")
+        input.requestMediaDataWhenReady(on: queue) { [self] in
+            while input.isReadyForMoreMediaData {
+                guard let sample = output.copyNextSampleBuffer() else { input.markAsFinished(); group.leave(); return }
+                input.append(sample)
+            }
+        }
     }
 }
-await pump(videoOut, videoIn)
-if let audioOut, let audioIn { await pump(audioOut, audioIn) }
+let group = DispatchGroup()
+let pumps = [Pump(videoOut, videoIn)] + (audioOut.flatMap { out in audioIn.map { Pump(out, $0) } }.map { [$0] } ?? [])
+pumps.forEach { $0.run(group) }
+await withCheckedContinuation { continuation in group.notify(queue: .main) { continuation.resume() } }
 await writer.finishWriting()
 let bytes = (try? FileManager.default.attributesOfItem(atPath: output.path)[.size] as? Int) ?? 0
 print(String(format: "完成 %.1f MB", Double(bytes) / 1_048_576))

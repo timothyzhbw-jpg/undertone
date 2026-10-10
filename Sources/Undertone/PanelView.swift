@@ -255,7 +255,7 @@ struct MessageQuote: View {
                 if let sender = message.sender { Text(sender).font(.system(size: 11)).foregroundStyle(.tertiary) }
                 Spacer()
                 if isLatest && analyzing { Spinner(size: 10) }
-                Text(date.formatted(date: .omitted, time: .shortened)).font(.system(size: 10)).foregroundStyle(.tertiary)
+                Text(date.formatted(Date.FormatStyle(date: .omitted, time: .shortened).locale(AppLanguage.current.locale))).font(.system(size: 10)).foregroundStyle(.tertiary)
             }
             HStack(alignment: .top, spacing: 8) {
                 Circle().fill(Color.primary.opacity(0.10)).frame(width: 26, height: 26)
@@ -642,7 +642,7 @@ struct HistoryRow: View {
                 if report.activeFlags().contains(where: \.isSerious) {
                     Image(systemName: "exclamationmark.triangle.fill").font(.system(size: 10)).foregroundStyle(Theme.danger)
                 }
-                Text(report.date.formatted(date: .omitted, time: .shortened)).font(.system(size: 10)).foregroundStyle(.tertiary)
+                Text(report.date.formatted(Date.FormatStyle(date: .omitted, time: .shortened).locale(AppLanguage.current.locale))).font(.system(size: 10)).foregroundStyle(.tertiary)
             }
             .padding(.horizontal, 8).padding(.vertical, 6)
             .background(RoundedRectangle(cornerRadius: 7, style: .continuous)

@@ -1,6 +1,7 @@
 // 把录好的原始视频做成成片：1920×1080（PRESET 环境变量可改），开头标题卡、结尾收尾卡，底部字幕，旁白用 macOS 的 say 合成。
 // 旁白和原始视频里的声音放在同一条音轨上（mp4 里多条音轨不会混音，YouTube 只播第一条）；前一句没说完就顺延。
 // 用法：swiftc -O -parse-as-library makevideo.swift -o makevideo && ./makevideo plan.json
+// voice 写 say 的声音名，或 Siri 自然声音的 ID（com.apple.siri.natural.…，由 tts.swift 合成，要先在系统设置里下载）。
 import AppKit
 import AVFoundation
 import QuartzCore
@@ -33,12 +34,38 @@ let ground = CGColor(red: 0.91, green: 0.92, blue: 0.94, alpha: 1)
 let ink = CGColor(red: 0.11, green: 0.12, blue: 0.14, alpha: 1)
 let brand = CGColor(red: 0.30, green: 0.40, blue: 0.90, alpha: 1)
 
-func speak(_ text: String, voice: String, rate: Int, to url: URL) throws -> Double {
+/// 旁白音频：voice 是 Siri 自然声音的 ID（com.apple.…）时用同目录的 tts.swift 一次合成好，否则用 say。
+func synthesize(_ texts: [String], voice: String, rate: Int, in directory: URL) throws -> [URL] {
+    let urls = texts.indices.map { directory.appending(path: "\($0).caf") }
+    if voice.hasPrefix("com.apple.") {
+        // Siri 声音只有从终端直接运行时才看得到，由本程序启动的子进程看不到：先写好任务，让人在终端里合成，合成过的不再重做
+        let jobs = zip(texts, urls).map { ["text": $0, "out": $1.path, "voice": voice] }
+        let list = directory.appending(path: "jobs.json")
+        let data = try JSONSerialization.data(withJSONObject: jobs, options: .sortedKeys)
+        let done = (try? Data(contentsOf: list)) == data && urls.allSatisfy { FileManager.default.fileExists(atPath: $0.path) }
+        if !done {
+            urls.forEach { try? FileManager.default.removeItem(at: $0) }
+            try data.write(to: list)
+            let script = URL(fileURLWithPath: #filePath).deletingLastPathComponent().appending(path: "tts.swift")
+            print("先在终端里合成旁白，再运行一次：\nswift \(script.lastPathComponent)（和 makevideo.swift 在同一目录） \(voice) \(list.path)")
+            exit(2)
+        }
+    } else {
+        for (text, url) in zip(texts, urls) { try run("/usr/bin/say", ["-v", voice, "-r", String(rate), "--file-format=caff", "-o", url.path, text]) }
+    }
+    return urls
+}
+
+func run(_ tool: String, _ arguments: [String]) throws {
     let process = Process()
-    process.executableURL = URL(fileURLWithPath: "/usr/bin/say")
-    process.arguments = ["-v", voice, "-r", String(rate), "-o", url.path, text]
+    process.executableURL = URL(fileURLWithPath: tool)
+    process.arguments = arguments
     try process.run()
     process.waitUntilExit()
+    guard process.terminationStatus == 0 else { fatalError("\(tool) 失败") }
+}
+
+func duration(of url: URL) throws -> Double {
     let file = try AVAudioFile(forReading: url)
     return Double(file.length) / file.fileFormat.sampleRate
 }
@@ -88,7 +115,6 @@ struct MakeVideo {
     static func main() async throws {
         let plan = try JSONDecoder().decode(Plan.self, from: Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[1])))
         let work = URL(fileURLWithPath: plan.output).deletingLastPathComponent().appending(path: "narration")
-        try? FileManager.default.removeItem(at: work)
         try FileManager.default.createDirectory(at: work, withIntermediateDirectories: true)
 
         let raw = AVURLAsset(url: URL(fileURLWithPath: plan.video))
@@ -101,10 +127,17 @@ struct MakeVideo {
         let composition = AVMutableComposition()
         let video = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
         video.insertEmptyTimeRange(CMTimeRange(start: .zero, duration: intro))
-        try video.insertTimeRange(CMTimeRange(start: .zero, duration: rawDuration), of: rawVideo, at: intro)
+        // 屏幕不变时 ScreenCaptureKit 不出新帧，画面轨可能比声音短：把最后一帧拉长到原始视频结束
+        let videoEnd = try await rawVideo.load(.timeRange).end
+        try video.insertTimeRange(CMTimeRange(start: .zero, end: min(videoEnd, rawDuration)), of: rawVideo, at: intro)
+        if videoEnd < rawDuration {
+            let frame = CMTime(value: 1, timescale: 30)
+            video.scaleTimeRange(CMTimeRange(start: intro + videoEnd - frame, duration: frame), toDuration: frame + rawDuration - videoEnd)
+        }
 
         let audio = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
         let rawAudio = try await raw.loadTracks(withMediaType: .audio).first
+        let speech = try synthesize([plan.introSay] + plan.cues.map(\.say) + [plan.outroSay], voice: plan.voice, rate: plan.rate, in: work)
         enum Piece { case speech(index: Int, text: String, caption: String?), original(Double, Double) }
         var pieces: [(start: Double, piece: Piece)] = [(0.6, .speech(index: 0, text: plan.introSay, caption: nil))]
         for (i, cue) in plan.cues.enumerated() {
@@ -125,8 +158,8 @@ struct MakeVideo {
                                           of: rawAudio!, at: CMTime(seconds: item.start, preferredTimescale: 600))
                 free = item.start + (to - from)
             case let .speech(index, text, caption):
-                let url = work.appending(path: "\(index).aiff")
-                let duration = try speak(text, voice: plan.voice, rate: plan.rate, to: url)
+                let url = speech[index]
+                let duration = try duration(of: url)
                 let start = max(item.start, free + 0.25)
                 if start > item.start + 0.05 { print(String(format: "第 %d 句顺延了 %.1f 秒", index, start - item.start)) }
                 let asset = AVURLAsset(url: url)

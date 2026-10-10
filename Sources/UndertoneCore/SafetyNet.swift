@@ -95,12 +95,27 @@ public enum MoneyNet {
         regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)) != nil
     }
 
-    /// 命中时把 asks_money 提到 SafetyNet.probability。
+    /// 消息里有没有提到钱、付款或账户（比关键词网宽得多，只用来核对模型的判断）。
+    private static let money = try! NSRegularExpression(pattern: [
+        #"钱|转|汇|付|款|账|银行|卡|验证码|密码|红包|借|元|块|万|费"#,
+        #"(?i)\b(pay|paid|unpaid|payments?|paying|money|cash|funds?|deposit|balance|remit\w*|wire|transfer\w*|bank\w*|accounts?|beneficiary|iban|swift|routing|cards?|codes?|password|passcode|pin|login|fees?|refund|reimburse\w*|invoice|crypto|bitcoin|btc|usdt|venmo|zelle|paypal|cash ?app|western union|moneygram|loan|lend|borrow|usd|dollars?|bucks)\b"#,
+        #"[$€£¥]"#,
+    ].joined(separator: "|"))
+
+    public static func mentionsMoney(_ text: String) -> Bool {
+        money.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)) != nil
+    }
+
+    /// 命中时把 asks_money 提到 SafetyNet.probability。模型自己报了 asks_money、消息里却根本没提钱或账户时撤掉：
+    /// 小模型偶尔把「要请示团队」「跟进报价」也当成要钱，付款提醒乱弹，真正的骗局提醒就没人看了。
     public static func apply(to report: EmotionReport) -> EmotionReport {
-        guard matches(report.message.text) else { return report }
         var report = report
         let key = EmotionFlag.asksMoney.rawValue
-        report.flags[key] = max(report.flags[key] ?? 0, SafetyNet.probability)
+        if matches(report.message.text) {
+            report.flags[key] = max(report.flags[key] ?? 0, SafetyNet.probability)
+        } else if (report.flags[key] ?? 0) > 0, !mentionsMoney(report.message.text) {
+            report.flags[key] = 0
+        }
         return report
     }
 }

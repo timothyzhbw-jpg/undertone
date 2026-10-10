@@ -18,7 +18,7 @@ struct ManualView: View {
             SectionTitle(symbol: "doc.on.clipboard", title: L("粘贴聊天记录", "Paste a chat")) {
                 if !parsed.messages.isEmpty {
                     let theirs = parsed.messages.filter { $0.speaker == .them }.count
-                    Text(L("\(parsed.messages.count) 条 · 对方 \(theirs) 条", "\(parsed.messages.count) messages · \(theirs) from them"))
+                    Text(L("\(parsed.messages.count) 条 · 对方 \(theirs) 条", parsed.messages.count == 1 ? "1 message · \(theirs) from them" : "\(parsed.messages.count) messages · \(theirs) from them"))
                         .font(.system(size: 10.5)).foregroundStyle(.tertiary)
                 }
             }

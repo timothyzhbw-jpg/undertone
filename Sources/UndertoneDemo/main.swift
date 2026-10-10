@@ -89,7 +89,7 @@ let script: [Step] = [
     .transcribe("Quick question, could you send three samples to our Chicago office this week?"),
     .add([Line(fromMe: true, text: "Sure, the samples will ship on Friday."), Line(fromMe: false, text: "deal!", kind: .sticker)]),
     .add([Line(fromMe: false, text: "Great. Our buyer meeting is on March 3rd, so we'd need them before then.")]),
-    .add([Line(fromMe: false, text: "Just following up on the revised invoice, our finance team is waiting on it.")]),
+    .add([Line(fromMe: false, text: "Just following up on the revised quote, our purchasing team is waiting on it.")]),
     .add([Line(fromMe: false, text: "Please note our bank account has changed due to an audit. Kindly send the deposit to the new account below.")]),
 ]
 
@@ -239,6 +239,7 @@ final class DemoDelegate: NSObject, NSApplicationDelegate {
 
 MainActor.assumeIsolated {
     let app = NSApplication.shared
+    app.appearance = NSAppearance(named: .aqua)   // 演示聊天窗口是浅色的：系统用深色模式时，标题和名字也要看得清
     let delegate = DemoDelegate()
     app.delegate = delegate
     app.setActivationPolicy(.regular)

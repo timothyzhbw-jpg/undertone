@@ -8,8 +8,8 @@ private let log = Logger(subsystem: "io.github.undertone", category: "recorder")
 
 /// 录演示视频：UNDERTONE_RECORD=输出.mov 时启用。先运行演示聊天窗口（UndertoneDemo），再用 `open` 启动 Undertone。
 /// 只录演示窗口和 Undertone 面板这两个窗口，屏幕上别的东西不会进画面。
-/// 演示窗口的消息按它自己的节奏到达（DEMO_INTERVAL）；之后演示「发之前看看」，再切到粘贴模式：
-/// 一张客户邮件的截图（UNDERTONE_RECORD_SCREENSHOT=图片路径）和老师的一句委婉批评。
+/// 演示窗口的消息按它自己的节奏到达（DEMO_INTERVAL）；之后切到粘贴模式：一张客户邮件的截图
+/// （UNDERTONE_RECORD_SCREENSHOT=图片路径），用「发之前看看」检查给它的回复，最后是老师的一句委婉批评。
 enum DemoRecording {
     static var requested: URL? {
         ProcessInfo.processInfo.environment["UNDERTONE_RECORD"].map { URL(fileURLWithPath: $0) }
@@ -48,6 +48,7 @@ final class DemoRecorder: NSObject, SCRecordingOutputDelegate {
             }
             // 看演示窗口，框住聊天区域（去掉窗口标题栏和联系人名字那一条）
             panel.appearance = NSAppearance(named: .aqua)   // 和浅色的演示聊天窗口统一
+            settings.manualMode = false   // 上次录制可能停在粘贴模式
             settings.windowID = demo.windowID
             settings.region = CGRect(x: 0, y: 0.11, width: 1, height: 0.89)
             monitor.restart()
@@ -60,13 +61,6 @@ final class DemoRecorder: NSObject, SCRecordingOutputDelegate {
             log.notice("recording started")
 
             try await Task.sleep(for: .seconds(liveSeconds))
-            // 发之前看看：一句生硬、带语病的英文回复
-            monitor.draft = "Ok. Please reply me soon, we need to know today."
-            try await Task.sleep(for: .seconds(2))
-            monitor.checkDraft()
-            try await Task.sleep(for: .seconds(1))
-            while monitor.checkingDraft { try await Task.sleep(for: .milliseconds(200)) }
-            try await Task.sleep(for: .seconds(10))
             // 粘贴模式：先放一张客户邮件的截图，再贴老师的一句话
             settings.manualMode = true
             monitor.pause()
@@ -80,6 +74,14 @@ final class DemoRecorder: NSObject, SCRecordingOutputDelegate {
                     monitor.manualContact = "Mark Davis"   // 邮件截图认不出发件人，面板上显示他的名字
                     while monitor.analyzing { try await Task.sleep(for: .milliseconds(200)) }
                     try await Task.sleep(for: .seconds(10))
+                    // 发之前看看：给这封邮件回一句生硬、带语病的英文
+                    monitor.draft = "Ok. Please tell me the reason, we can give you better price."
+                    try await Task.sleep(for: .seconds(2))
+                    monitor.checkDraft()
+                    try await Task.sleep(for: .seconds(1))
+                    while monitor.checkingDraft { try await Task.sleep(for: .milliseconds(200)) }
+                    try await Task.sleep(for: .seconds(10))
+                    monitor.clearDraft()
                 }
             }
             monitor.manualContact = "Prof. Lee"
@@ -93,6 +95,7 @@ final class DemoRecorder: NSObject, SCRecordingOutputDelegate {
                 try await Task.sleep(for: .seconds(hold))
             }
             try await stopRecording()
+            settings.manualMode = false
             // 只为录演示记下的虚构联系人，录完删掉
             monitor.forget("Mark Davis")
             monitor.forget("Prof. Lee")

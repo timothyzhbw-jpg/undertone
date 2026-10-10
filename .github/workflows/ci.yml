@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, 'claude/**']
+    branches: [main, 'claude/**', 'desktop-app']
   pull_request:
 
 concurrency:
@@ -37,3 +37,20 @@ jobs:
           name: previews
           path: previews/
           if-no-files-found: ignore
+
+  desktop:
+    # Windows / Linux 版（desktop/，Electron）：分析逻辑、和 Mac 版提示词一字不差、气泡版面的测试，不需要图形界面。
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - run: npm ci
+      - run: npm test

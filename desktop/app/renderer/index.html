@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob: mediastream:; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <title>Undertone</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H11l-4.2 3.4c-.5.4-1.3 0-1.3-.6V16A2.5 2.5 0 0 1 4 13.5z"/><path class="q" d="M8.6 7.6h2.3v2.1c0 1.3-.6 2.2-1.9 2.6l-.4-.8c.6-.3.9-.7.9-1.3h-.9zm4.5 0h2.3v2.1c0 1.3-.6 2.2-1.9 2.6l-.4-.8c.6-.3.9-.7.9-1.3h-.9z"/></svg></div>
+    <div class="title">
+      <div class="name">Undertone</div>
+      <div class="status"><span class="dot" id="statusDot"></span><span id="statusText"></span></div>
+    </div>
+    <button class="icon" id="pauseButton" title=""><svg viewBox="0 0 24 24"><path d="M8 5h3v14H8zm5 0h3v14h-3z"/></svg></button>
+    <button class="icon" id="settingsButton" title=""><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
+  </header>
+
+  <nav class="modes">
+    <button data-mode="live" id="liveTab"></button>
+    <button data-mode="paste" id="pasteTab"></button>
+  </nav>
+
+  <div class="relationships" id="relationships"></div>
+
+  <main id="content">
+    <section id="notice" class="card notice hidden"></section>
+
+    <section id="windowPicker" class="card hidden">
+      <div class="section-title" id="pickerTitle"></div>
+      <div class="hint" id="pickerHint"></div>
+      <div id="windowList" class="window-list"></div>
+      <button class="pill" id="refreshWindows"></button>
+    </section>
+
+    <section id="paste" class="card hidden">
+      <div class="section-title"><span id="pasteTitle"></span><span class="count" id="pasteCount"></span></div>
+      <textarea id="transcript" rows="6"></textarea>
+      <div class="hint" id="pasteHint"></div>
+      <div class="row">
+        <button class="pill" id="pasteImage"></button>
+        <button class="pill subtle" id="clearPaste"></button>
+        <span class="spacer"></span>
+        <button class="pill filled" id="analyzePaste"></button>
+      </div>
+    </section>
+
+    <section id="empty" class="empty">
+      <div class="empty-title" id="emptyTitle"></div>
+      <div class="empty-text" id="emptyText"></div>
+    </section>
+
+    <section id="report" class="hidden"></section>
+
+    <section id="draft" class="card draft">
+      <div class="section-title" id="draftTitle"></div>
+      <textarea id="draftText" rows="3"></textarea>
+      <div class="row">
+        <button class="pill subtle" id="clearDraft"></button>
+        <span class="spacer"></span>
+        <button class="pill filled" id="checkDraft"></button>
+      </div>
+      <div id="draftResult"></div>
+    </section>
+
+    <section id="recent" class="hidden">
+      <div class="section-title" id="recentTitle"></div>
+      <div id="recentList"></div>
+    </section>
+  </main>
+
+  <footer id="footer"></footer>
+
+  <div id="settings" class="sheet hidden">
+    <div class="sheet-body">
+      <div class="sheet-title" id="settingsTitle"></div>
+      <label><span id="uiLabel"></span><select id="uiSelect"><option value="en">English</option><option value="zh">中文</option></select></label>
+      <label><span id="explainLabel"></span><select id="explainSelect"></select></label>
+      <div class="hint" id="explainHint"></div>
+      <label><span id="modelLabel"></span><input id="modelInput" spellcheck="false"></label>
+      <label><span id="urlLabel"></span><input id="urlInput" spellcheck="false"></label>
+      <label class="check"><input type="checkbox" id="topCheck"><span id="topLabel"></span></label>
+      <div class="sheet-sub" id="liveSettingsTitle"></div>
+      <label><span id="cropTopLabel"></span><input type="number" min="0" max="45" id="cropTopInput"></label>
+      <label><span id="cropBottomLabel"></span><input type="number" min="0" max="45" id="cropBottomInput"></label>
+      <button class="pill" id="changeWindow"></button>
+      <div class="hint" id="aboutText"></div>
+      <div class="row"><span class="spacer"></span><button class="pill filled" id="closeSettings"></button></div>
+    </div>
+  </div>
+
+  <video id="video" muted playsinline class="hidden"></video>
+  <canvas id="canvas" class="hidden"></canvas>
+  <script src="../layout.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

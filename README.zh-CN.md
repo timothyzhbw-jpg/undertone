@@ -44,6 +44,8 @@ Undertone 是一个 macOS 悬浮面板，给在英语环境里上学、工作、
 
 **直接下载**：在 [Releases](https://github.com/timothyzhbw-jpg/undertone/releases/latest) 下载 `Undertone-版本号.dmg`，把 Undertone 拖进「应用程序」，再装好 [Ollama](https://ollama.com) 并运行 `ollama pull qwen3.5:4b`。Undertone 没有经过苹果公证，第一次打开会被拦：到 系统设置 → 隐私与安全性，点「仍要打开」；或者运行 `xattr -dr com.apple.quarantine /Applications/Undertone.app`。
 
+**Windows 和 Linux**：[`desktop/`](desktop) 里有一个早期的跨平台版本，分析逻辑一样（粘贴、截图，以及用 OCR 实时读聊天窗口）。
+
 **从源码构建**：需要 macOS 14 以上、Xcode 或 Command Line Tools（Swift 5.10+）、[Ollama](https://ollama.com)。
 
 ```bash

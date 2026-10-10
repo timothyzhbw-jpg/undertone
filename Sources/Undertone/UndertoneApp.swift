@@ -33,6 +33,25 @@ enum UndertoneMain {
             _ = NSApplication.shared
             exit(Inspector.run(URL(fileURLWithPath: args[i + 1]), analyze: args.contains("--analyze")) ? 0 : 1)
         }
+        // Undertone --dump-prompt 聊天.txt es [client]：按粘贴模式解析聊天记录，打印给模型的完整提示词（读话外音和「发之前看看」，JSON）。
+        // 用来核对其他前端（desktop/ 的 Windows 版）发给模型的内容和 Mac 版一字不差。
+        if let i = args.firstIndex(of: "--dump-prompt"), i + 2 < args.count {
+            let parsed = ChatTranscript.parse((try? String(contentsOfFile: args[i + 1], encoding: .utf8)) ?? "")
+            var config = AnalyzerConfig()
+            config.explanation = ExplanationLanguage(rawValue: args[i + 2]) ?? .en
+            let relationship = i + 3 < args.count ? args[i + 3] : nil
+            guard let index = parsed.messages.lastIndex(where: { $0.speaker == .them }),
+                  let analyzer = try? config.makeAnalyzer(relationship: relationship) as? LLMAnalyzer,
+                  let turns = try? analyzer.turns(context: Array(parsed.messages[..<index].suffix(10)), latest: parsed.messages[index]),
+                  let checker = try? config.makeDraftChecker(relationship: relationship),
+                  let draftTurns = try? checker.turns(context: Array(parsed.messages.suffix(10)), draft: "Ok. Please tell me the reason.")
+            else { exit(1) }
+            let encode = { (turns: [ChatTurn]) in turns.map { ["role": $0.role, "content": $0.content] } }
+            let json: [String: Any] = ["system": analyzer.prompt.system, "turns": encode(turns),
+                                       "draftSystem": checker.prompt.system, "draftTurns": encode(draftTurns)]
+            FileHandle.standardOutput.write(try! JSONSerialization.data(withJSONObject: json, options: [.sortedKeys]))
+            exit(0)
+        }
         // Undertone --replay 1.png 2.png …：把几张聊天区域截图依次当成新画面，走一遍监控和分析（测试用，不截屏）。
         if let i = args.firstIndex(of: "--replay"), i + 1 < args.count {
             _ = NSApplication.shared

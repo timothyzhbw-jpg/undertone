@@ -60,7 +60,7 @@ public struct LLMAnalyzer: EmotionAnalyzer {
     }
 
     /// few-shot 示例在前，当前对话在最后。
-    func turns(context: [ChatMessage], latest: ChatMessage) throws -> [ChatTurn] {
+    public func turns(context: [ChatMessage], latest: ChatMessage) throws -> [ChatTurn] {
         var turns: [ChatTurn] = []
         for example in prompt.examples {
             turns.append(ChatTurn(role: "user", content: example.chat))

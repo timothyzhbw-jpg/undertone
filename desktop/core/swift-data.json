@@ -1,0 +1,688 @@
+{
+ "vocabulary": {
+  "emotions": [
+   {
+    "zh": "开心",
+    "en": "happy",
+    "label": "Happy",
+    "aliases": [
+     "joy",
+     "joyful",
+     "excited"
+    ]
+   },
+   {
+    "zh": "平静",
+    "en": "calm",
+    "label": "Calm",
+    "aliases": [
+     "neutral"
+    ]
+   },
+   {
+    "zh": "亲昵",
+    "en": "affectionate",
+    "label": "Affectionate",
+    "aliases": [
+     "affection",
+     "loving"
+    ]
+   },
+   {
+    "zh": "难过",
+    "en": "sad",
+    "label": "Sad",
+    "aliases": [
+     "sadness",
+     "upset"
+    ]
+   },
+   {
+    "zh": "委屈",
+    "en": "hurt",
+    "label": "Hurt",
+    "aliases": [
+     "wronged",
+     "aggrieved"
+    ]
+   },
+   {
+    "zh": "生气",
+    "en": "angry",
+    "label": "Angry",
+    "aliases": [
+     "anger",
+     "mad",
+     "annoyed"
+    ]
+   },
+   {
+    "zh": "失望",
+    "en": "disappointed",
+    "label": "Disappointed",
+    "aliases": [
+     "disappointment"
+    ]
+   },
+   {
+    "zh": "焦虑",
+    "en": "anxious",
+    "label": "Anxious",
+    "aliases": [
+     "anxiety",
+     "worried",
+     "nervous"
+    ]
+   },
+   {
+    "zh": "冷淡",
+    "en": "cold",
+    "label": "Cold",
+    "aliases": [
+     "distant",
+     "indifferent"
+    ]
+   },
+   {
+    "zh": "尴尬",
+    "en": "embarrassed",
+    "label": "Embarrassed",
+    "aliases": [
+     "awkward",
+     "shy"
+    ]
+   },
+   {
+    "zh": "未知",
+    "en": "unknown",
+    "label": "Unknown",
+    "aliases": []
+   }
+  ],
+  "consistency": [
+   {
+    "zh": "反话",
+    "en": "sarcastic",
+    "label": "Sarcastic",
+    "aliases": [
+     "sarcasm",
+     "ironic",
+     "passive aggressive"
+    ]
+   },
+   {
+    "zh": "撒娇",
+    "en": "playful",
+    "label": "Playful sulking",
+    "aliases": [
+     "teasing",
+     "coy"
+    ]
+   },
+   {
+    "zh": "没说完",
+    "en": "holding back",
+    "label": "Holding back",
+    "aliases": [
+     "unsaid",
+     "hinting"
+    ]
+   },
+   {
+    "zh": "一致",
+    "en": "sincere",
+    "label": "Means it",
+    "aliases": [
+     "consistent",
+     "literal",
+     "genuine"
+    ]
+   }
+  ],
+  "targets": [
+   {
+    "zh": "自己",
+    "en": "themselves",
+    "label": "at themselves",
+    "aliases": [
+     "self",
+     "himself",
+     "herself"
+    ]
+   },
+   {
+    "zh": "别人",
+    "en": "someone else",
+    "label": "at someone else",
+    "aliases": [
+     "others",
+     "other people"
+    ]
+   },
+   {
+    "zh": "这件事",
+    "en": "the situation",
+    "label": "at the situation",
+    "aliases": [
+     "situation",
+     "the thing"
+    ]
+   },
+   {
+    "zh": "我",
+    "en": "me",
+    "label": "at you",
+    "aliases": [
+     "you",
+     "the user"
+    ]
+   }
+  ],
+  "responses": [
+   {
+    "zh": "安慰共情",
+    "en": "comfort",
+    "label": "Comfort them",
+    "aliases": [
+     "empathize",
+     "empathy"
+    ]
+   },
+   {
+    "zh": "真诚道歉",
+    "en": "apologize",
+    "label": "Apologize sincerely",
+    "aliases": [
+     "apology"
+    ]
+   },
+   {
+    "zh": "解释澄清",
+    "en": "clarify",
+    "label": "Clarify calmly",
+    "aliases": [
+     "explain"
+    ]
+   },
+   {
+    "zh": "给对方空间",
+    "en": "give space",
+    "label": "Give them space",
+    "aliases": [
+     "space"
+    ]
+   },
+   {
+    "zh": "用行动关心",
+    "en": "show care",
+    "label": "Show up for them",
+    "aliases": [
+     "act",
+     "show up"
+    ]
+   },
+   {
+    "zh": "正常聊天",
+    "en": "chat normally",
+    "label": "Chat as usual",
+    "aliases": [
+     "casual",
+     "chat"
+    ]
+   },
+   {
+    "zh": "守住边界",
+    "en": "hold boundary",
+    "label": "Hold your boundary",
+    "aliases": [
+     "boundary",
+     "set boundary"
+    ]
+   },
+   {
+    "zh": "核实身份",
+    "en": "verify identity",
+    "label": "Verify it's them",
+    "aliases": [
+     "verify"
+    ]
+   },
+   {
+    "zh": "寻求帮助",
+    "en": "get help",
+    "label": "Get help",
+    "aliases": [
+     "seek help",
+     "seek_help"
+    ]
+   },
+   {
+    "zh": "跟进推进",
+    "en": "follow up",
+    "label": "Follow up",
+    "aliases": [
+     "move forward",
+     "next step"
+    ]
+   }
+  ],
+  "relationships": [
+   {
+    "zh": "不确定",
+    "en": "not sure",
+    "label": "Not sure",
+    "aliases": [
+     "unknown",
+     "unsure"
+    ]
+   },
+   {
+    "zh": "恋人",
+    "en": "partner",
+    "label": "Partner",
+    "aliases": [
+     "romantic partner",
+     "boyfriend",
+     "girlfriend",
+     "spouse",
+     "couple",
+     "dating"
+    ]
+   },
+   {
+    "zh": "家人",
+    "en": "family",
+    "label": "Family",
+    "aliases": [
+     "parent",
+     "mom",
+     "dad",
+     "sibling"
+    ]
+   },
+   {
+    "zh": "朋友",
+    "en": "friend",
+    "label": "Friend",
+    "aliases": [
+     "friends"
+    ]
+   },
+   {
+    "zh": "同事",
+    "en": "coworker",
+    "label": "Coworker",
+    "aliases": [
+     "colleague",
+     "boss",
+     "work"
+    ]
+   },
+   {
+    "zh": "同学",
+    "en": "classmate",
+    "label": "Classmate",
+    "aliases": [
+     "schoolmate",
+     "school"
+    ]
+   },
+   {
+    "zh": "客户",
+    "en": "client",
+    "label": "Client",
+    "aliases": [
+     "customer",
+     "buyer",
+     "supplier",
+     "vendor"
+    ]
+   },
+   {
+    "zh": "老师",
+    "en": "professor",
+    "label": "Professor",
+    "aliases": [
+     "teacher",
+     "advisor",
+     "instructor",
+     "lecturer"
+    ]
+   }
+  ],
+  "readings": [
+   {
+    "zh": "客套",
+    "en": "just being polite",
+    "label": "Just being polite",
+    "aliases": [
+     "politeness"
+    ]
+   },
+   {
+    "zh": "委婉拒绝",
+    "en": "a polite no",
+    "label": "A polite no",
+    "aliases": [
+     "soft no",
+     "polite no",
+     "declining"
+    ]
+   },
+   {
+    "zh": "还没决定",
+    "en": "not decided yet",
+    "label": "Not decided yet",
+    "aliases": [
+     "stalling",
+     "undecided"
+    ]
+   },
+   {
+    "zh": "在催你",
+    "en": "waiting on you",
+    "label": "Waiting on you",
+    "aliases": [
+     "nudging",
+     "following up"
+    ]
+   },
+   {
+    "zh": "不满",
+    "en": "not happy",
+    "label": "Not happy",
+    "aliases": [
+     "displeased",
+     "unhappy",
+     "complaint"
+    ]
+   },
+   {
+    "zh": "有兴趣",
+    "en": "genuinely interested",
+    "label": "Genuinely interested",
+    "aliases": [
+     "buying signal"
+    ]
+   },
+   {
+    "zh": "在压价",
+    "en": "negotiating",
+    "label": "Negotiating",
+    "aliases": [
+     "price pushback",
+     "bargaining"
+    ]
+   },
+   {
+    "zh": "反话",
+    "en": "sarcastic",
+    "label": "Sarcastic",
+    "aliases": [
+     "sarcasm"
+    ]
+   },
+   {
+    "zh": "开玩笑",
+    "en": "joking",
+    "label": "Joking",
+    "aliases": [
+     "joke",
+     "kidding",
+     "banter"
+    ]
+   },
+   {
+    "zh": "可疑",
+    "en": "red flag",
+    "label": "Red flag",
+    "aliases": [
+     "suspicious",
+     "scam"
+    ]
+   },
+   {
+    "zh": "字面意思",
+    "en": "means what it says",
+    "label": "Means what it says",
+    "aliases": [
+     "literal",
+     "sincere"
+    ]
+   }
+  ],
+  "verdicts": [
+   {
+    "zh": "太生硬",
+    "en": "too blunt",
+    "label": "Too blunt",
+    "aliases": [
+     "blunt",
+     "rude",
+     "harsh"
+    ]
+   },
+   {
+    "zh": "太客气",
+    "en": "too apologetic",
+    "label": "Too apologetic",
+    "aliases": [
+     "over-polite",
+     "too formal",
+     "apologetic"
+    ]
+   },
+   {
+    "zh": "太随意",
+    "en": "too casual",
+    "label": "Too casual",
+    "aliases": [
+     "casual",
+     "informal"
+    ]
+   },
+   {
+    "zh": "意思不清",
+    "en": "unclear",
+    "label": "Unclear",
+    "aliases": [
+     "confusing",
+     "ambiguous"
+    ]
+   },
+   {
+    "zh": "有语病",
+    "en": "grammar issues",
+    "label": "Grammar issues",
+    "aliases": [
+     "grammar",
+     "awkward"
+    ]
+   },
+   {
+    "zh": "得体",
+    "en": "reads well",
+    "label": "Reads well",
+    "aliases": [
+     "fine",
+     "good",
+     "natural"
+    ]
+   }
+  ]
+ },
+ "nets": {
+  "safety": [
+   "自杀",
+   "轻生",
+   "不想活",
+   "活不下去",
+   "活着没(有|什么)?意思",
+   "活着(真的)?好累",
+   "结束(自己|我)的?生命",
+   "了结自己",
+   "一了百了",
+   "遗书",
+   "遗言",
+   "跳楼",
+   "跳河",
+   "割腕",
+   "烧炭",
+   "上吊",
+   "划(了)?自己",
+   "伤害自己",
+   "安眠药",
+   "(攒|囤)[了够好齐多]{0,3}(安眠)?药",
+   "药.{0,2}(攒|囤)",
+   "永别",
+   "下辈子再见",
+   "再也不(用)?醒",
+   "不想(再)?醒来",
+   "一睡不醒",
+   "没有我.{0,6}(更好|轻松)",
+   "我(就)?是(个)?累赘",
+   "消失了也",
+   "消失算了",
+   "离开这个世界",
+   "撑不下去了",
+   "我不在了",
+   "我就去死",
+   "(?i:suicid)",
+   "(?i:kill myself)",
+   "(?i:end (it all|my life))",
+   "(?i:(cut|hurt|harm)(ting)? myself)",
+   "(?i:self[- ]harm)",
+   "(?i:better off without me)",
+   "(?i:(don['’]?t|do not|no longer) want to (live|be alive|exist|be here)( any ?more)?)",
+   "(?i:no (reason|point) (to|in) (live|living|go(ing)? on))",
+   "(?i:wish I (was|were|could be) dead)",
+   "(?i:take my (own )?life)",
+   "(?i:unalive (myself|me))",
+   "(?i:can['’]?t go on)",
+   "(?i:(sleep|fall asleep|go to sleep) and (never|not) wake up)",
+   "(?i:never wake up again)",
+   "(?i:(saved|saving|stockpiled|hoarded|stashed|collected) (up )?(enough |all (of )?(my|the) |my |the )?(pills|meds|sleeping pills))",
+   "(?i:overdos(e|ing))",
+   "(?i:sleeping pills)",
+   "(?i:slit(ting)? my wrists?)",
+   "(?i:hang(ing)? myself)",
+   "(?i:jump(ing)? off (a|the|this|that) (bridge|building|roof|cliff))",
+   "(?i:I['’]?m (just )?a burden)",
+   "(?i:I am (just )?a burden)",
+   "(?i:(no ?one|nobody) would (even )?(notice|care|miss me) if I)",
+   "(?i:if I (just )?(disappeared|was gone|were gone))",
+   "(?i:better off if I (just )?(wasn['’]?t|weren['’]?t|was not|were not) (around|here|alive))",
+   "(?i:want (it all|everything) to (stop|end))",
+   "(?i:(don['’]?t|do not) see the point (of|in) (anything|living|life|going on))",
+   "(?i:giv(e|ing) away (all )?(of )?my (stuff|things|belongings))",
+   "(?i:goodbye forever)",
+   "(?i:(suicide|goodbye) (note|letter))",
+   "(?i:won['’]?t be (around|here) (much longer|for long|anymore))",
+   "(?i:(never|not ever|n['’]?t ever) (going to|gonna) get (any )?better)",
+   "(?i:(tired|sick|exhausted) of (everything|it all|living|being alive))"
+  ],
+  "money": [
+   "转(账|给我|到(这|我|下面|以下))",
+   "打钱",
+   "汇款",
+   "借(我|点)?.{0,4}(钱|块|元|万|\\d)",
+   "垫付",
+   "(银行)?卡号",
+   "验证码",
+   "(支付|银行卡|登录|账号|取款)密码",
+   "保证金",
+   "收款码",
+   "刷单",
+   "安全账户",
+   "(?i:gift ?card)",
+   "(?i:wire (me|the) money)",
+   "(?i:verification code)",
+   "(?i:(lend|loan|front) me (some |a few |like )?(money|cash|bucks|\\$ ?\\d|\\d))",
+   "(?i:borrow (some )?(money|cash|\\$ ?\\d|\\d))",
+   "(?i:(send|wire|transfer) (me )?(some |the )?(money|cash|funds|\\$ ?\\d|\\d+ ?(dollars|bucks|usd)))",
+   "(?i:(venmo|zelle|cash ?app|paypal) me)",
+   "(?i:western union|moneygram)",
+   "(?i:(bank|card|account|routing|social security|ssn) (number|details|info))",
+   "(?i:(bank|card|account|login|banking) (pin|password|passcode))",
+   "(?i:(one[- ]time|security|2fa|login|6[- ]digit|auth(entication)?) code)",
+   "(?i:send .{0,20}(bitcoin|btc|crypto|usdt))",
+   "(?i:(new|changed|updated|different|another) (bank|beneficiary|receiving|company) account)",
+   "(?i:(bank|beneficiary|payment|remittance|account) (details|information|info|account) (has|have) (been )?(changed|updated))",
+   "(?i:(pay|send|remit|transfer|wire) .{0,40}(to|into) (the|our|this|my) (new|other|updated|personal) account)",
+   "(?i:(switched|changed|moved) (our |the |to a (new|different) )?banks?\\b)",
+   "(?i:(pay|send|remit|transfer|wire) .{0,40}(to|into) the account (below|attached|in the attach))",
+   "(?i:update (the |our )?(beneficiary|bank details|payment details|remittance))",
+   "(?i:(registration|processing|handling|certification|customs|release) fee)",
+   "(?i:payments? (to|into) (our|the|a|this) new (bank|account))",
+   "(?i:(reply with|send me|give me|tell me|confirm) (your |the )?(password|passcode|login|pin)\\b)"
+  ],
+  "moneyWords": [
+   "钱|转|汇|付|款|账|银行|卡|验证码|密码|红包|借|元|块|万|费",
+   "(?i)\\b(pay|paid|unpaid|payments?|paying|money|cash|funds?|deposit|balance|remit\\w*|wire|transfer\\w*|bank\\w*|accounts?|beneficiary|iban|swift|routing|cards?|codes?|password|passcode|pin|login|fees?|refund|reimburse\\w*|invoice|crypto|bitcoin|btc|usdt|venmo|zelle|paypal|cash ?app|western union|moneygram|loan|lend|borrow|usd|dollars?|bucks)\\b",
+   "[$€£¥]"
+  ],
+  "probability": 0.6
+ },
+ "flags": [
+  {
+   "case": "angryAtMe",
+   "zh": "对你不满",
+   "en": "Unhappy with you",
+   "key": "angry_at_me"
+  },
+  {
+   "case": "sarcasm",
+   "zh": "反话",
+   "en": "Sarcastic",
+   "key": "sarcasm"
+  },
+  {
+   "case": "perfunctory",
+   "zh": "在敷衍",
+   "en": "Brushing you off",
+   "key": "perfunctory"
+  },
+  {
+   "case": "needsComfort",
+   "zh": "需要安慰",
+   "en": "Needs reassurance",
+   "key": "needs_comfort"
+  },
+  {
+   "case": "testing",
+   "zh": "在试探",
+   "en": "Testing you",
+   "key": "testing"
+  },
+  {
+   "case": "coldDistance",
+   "zh": "兴趣在下降",
+   "en": "Losing interest",
+   "key": "cold_distance"
+  },
+  {
+   "case": "conflict",
+   "zh": "合作可能破裂",
+   "en": "Relationship at risk",
+   "key": "conflict"
+  },
+  {
+   "case": "manipulation",
+   "zh": "在施压",
+   "en": "Pressuring you",
+   "key": "manipulation"
+  },
+  {
+   "case": "selfHarm",
+   "zh": "自伤风险",
+   "en": "Self-harm risk",
+   "key": "self_harm"
+  },
+  {
+   "case": "asksMoney",
+   "zh": "涉及付款或账户",
+   "en": "Payment or account request",
+   "key": "asks_money"
+  }
+ ]
+}

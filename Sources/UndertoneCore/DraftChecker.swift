@@ -64,7 +64,7 @@ public struct DraftChecker: Sendable {
         return text
     }
 
-    func turns(context: [ChatMessage], draft: String) throws -> [ChatTurn] {
+    public func turns(context: [ChatMessage], draft: String) throws -> [ChatTurn] {
         var turns: [ChatTurn] = []
         for example in prompt.examples {
             turns.append(ChatTurn(role: "user", content: example.chat))

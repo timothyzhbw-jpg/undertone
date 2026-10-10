@@ -1,0 +1,86 @@
+{
+  "name": "undertone-desktop",
+  "productName": "Undertone",
+  "version": "0.3.0",
+  "description": "Reads the subtext in English messages and explains it in your language. Windows and Linux version of Undertone.",
+  "license": "Apache-2.0",
+  "main": "app/main.js",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "start": "electron .",
+    "extract": "python3 tools/extract_core.py",
+    "dist:win": "electron-builder --win nsis --x64 --arm64",
+    "dist:linux": "electron-builder --linux AppImage"
+  },
+  "dependencies": {
+    "@tesseract.js-data/eng": "^1.0.0",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3"
+  },
+  "author": "Undertone",
+  "homepage": "https://github.com/timothyzhbw-jpg/undertone",
+  "build": {
+    "appId": "io.github.undertone.desktop",
+    "productName": "Undertone",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "app/**",
+      "core/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../presets",
+        "to": "presets",
+        "filter": [
+          "*.json"
+        ]
+      }
+    ],
+    "asarUnpack": [
+      "node_modules/tesseract.js/**",
+      "node_modules/tesseract.js-core/**",
+      "node_modules/@tesseract.js-data/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Undertone-Setup-${version}-${arch}.${ext}"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Utility",
+      "icon": "build/icon.png",
+      "artifactName": "Undertone-${version}-${arch}.${ext}",
+      "syncDesktopName": true
+    },
+    "mac": {
+      "target": [
+        "dir"
+      ],
+      "icon": "build/icon.png",
+      "identity": null
+    }
+  },
+  "desktopName": "undertone.desktop"
+}

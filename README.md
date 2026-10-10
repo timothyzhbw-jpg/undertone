@@ -59,6 +59,8 @@ chat window ──ScreenCaptureKit──▶ Apple Vision OCR + pixel layout dete
 
 **Download:** get `Undertone-<version>.dmg` from [Releases](https://github.com/timothyzhbw-jpg/undertone/releases/latest), drag Undertone into Applications, then install [Ollama](https://ollama.com) and run `ollama pull qwen3.5:4b`. Undertone isn't notarized, so macOS blocks the first launch: open System Settings → Privacy & Security and click **Open Anyway**, or run `xattr -dr com.apple.quarantine /Applications/Undertone.app`.
 
+**Windows and Linux:** an early cross-platform version with the same analysis lives in [`desktop/`](desktop) (paste mode, screenshots, and live reading of a chat window with OCR).
+
 **Build from source:** macOS 14 or later, Xcode or the Command Line Tools (Swift 5.10+), and [Ollama](https://ollama.com).
 
 ```bash

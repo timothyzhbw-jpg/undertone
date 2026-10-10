@@ -10,7 +10,7 @@
     "start": "electron .",
     "extract": "python3 tools/extract_core.py",
     "dist:win": "electron-builder --win nsis --x64 --arm64",
-    "dist:linux": "electron-builder --linux AppImage"
+    "dist:linux": "electron-builder --linux"
   },
   "dependencies": {
     "@tesseract.js-data/eng": "^1.0.0",
@@ -67,12 +67,25 @@
     },
     "linux": {
       "target": [
-        "AppImage"
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
       "category": "Utility",
       "icon": "assets/icon.png",
       "artifactName": "Undertone-${version}-${arch}.${ext}",
-      "syncDesktopName": true
+      "syncDesktopName": true,
+      "maintainer": "Undertone <undertone@users.noreply.github.com>"
     },
     "mac": {
       "target": [
@@ -80,6 +93,17 @@
       ],
       "icon": "assets/icon.png",
       "identity": null
+    },
+    "deb": {
+      "artifactName": "undertone_${version}_${arch}.${ext}",
+      "depends": [
+        "libgtk-3-0",
+        "libnss3",
+        "libxss1",
+        "libxtst6",
+        "libgbm1",
+        "libasound2"
+      ]
     }
   },
   "desktopName": "undertone.desktop"

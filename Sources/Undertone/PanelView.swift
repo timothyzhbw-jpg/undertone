@@ -27,7 +27,14 @@ struct PanelView: View {
                 .padding(.horizontal, 14).padding(.bottom, 10)
             Hairline()
             if scrolls {
-                ScrollView { content }
+                // 新消息分析完回到顶上；「发之前看看」有结果时滚到它那里
+                ScrollViewReader { proxy in
+                    ScrollView { content }
+                        .onChange(of: monitor.reports.first?.id) { withAnimation { proxy.scrollTo("top", anchor: .top) } }
+                        .onChange(of: settings.manualMode) { withAnimation { proxy.scrollTo("top", anchor: .top) } }
+                        .onChange(of: monitor.checkingDraft) { withAnimation { proxy.scrollTo("draft", anchor: .bottom) } }
+                        .onChange(of: monitor.draftReview?.id) { withAnimation { proxy.scrollTo("draft", anchor: .bottom) } }
+                }
             } else {
                 content.frame(maxHeight: .infinity, alignment: .top)
             }
@@ -46,6 +53,7 @@ struct PanelView: View {
 
     private var content: some View {
         VStack(spacing: 12) {
+            Color.clear.frame(height: 0).id("top")
             Notices(monitor: monitor, settings: settings)
             if settings.manualMode {
                 ManualView(monitor: monitor, settings: settings, transcript: $monitor.manualTranscript, editable: scrolls)
@@ -61,7 +69,7 @@ struct PanelView: View {
             } else {
                 Onboarding(monitor: monitor, settings: settings, openSettings: { showSettings = true })
             }
-            DraftCheckView(monitor: monitor, editable: scrolls)
+            DraftCheckView(monitor: monitor, editable: scrolls).id("draft")
             if monitor.reports.count > 1 {
                 HistoryView(reports: monitor.reports, selectedID: $selectedID, shownID: shown?.id)
             }

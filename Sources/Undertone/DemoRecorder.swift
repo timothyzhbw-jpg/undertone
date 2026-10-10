@@ -8,7 +8,8 @@ private let log = Logger(subsystem: "io.github.undertone", category: "recorder")
 
 /// 录演示视频：UNDERTONE_RECORD=输出.mov 时启用。先运行演示聊天窗口（UndertoneDemo），再用 `open` 启动 Undertone。
 /// 只录演示窗口和 Undertone 面板这两个窗口，屏幕上别的东西不会进画面。
-/// 演示窗口的消息按它自己的节奏到达（DEMO_INTERVAL）；之后切到粘贴模式，演示老师的委婉批评和一句玩笑话。
+/// 演示窗口的消息按它自己的节奏到达（DEMO_INTERVAL）；之后演示「发之前看看」，再切到粘贴模式：
+/// 一张客户邮件的截图（UNDERTONE_RECORD_SCREENSHOT=图片路径）和老师的一句委婉批评。
 enum DemoRecording {
     static var requested: URL? {
         ProcessInfo.processInfo.environment["UNDERTONE_RECORD"].map { URL(fileURLWithPath: $0) }
@@ -36,7 +37,7 @@ final class DemoRecorder: NSObject, SCRecordingOutputDelegate {
 
     private var environment: [String: String] { ProcessInfo.processInfo.environment }
     /// 实时部分录多久：演示脚本 7 步 × 间隔，再留一点时间给最后一条分析。
-    private var liveSeconds: Double { Double(environment["UNDERTONE_RECORD_LIVE_SECONDS"] ?? "") ?? 112 }
+    private var liveSeconds: Double { Double(environment["UNDERTONE_RECORD_LIVE_SECONDS"] ?? "") ?? 124 }
 
     func run() async {
         do {
@@ -54,15 +55,36 @@ final class DemoRecorder: NSObject, SCRecordingOutputDelegate {
             // 窗口刚打开时有缩放动画，这时读到的位置不准：等它停稳再读一次
             try await Task.sleep(for: .seconds(2))
             try await placePanel(besideWindow: demo.windowID)
+            choose(relationship: "客户")
             try await startRecording(demoID: demo.windowID)
             log.notice("recording started")
 
             try await Task.sleep(for: .seconds(liveSeconds))
-            // 粘贴模式：老师邮件里的委婉批评，同学的一句玩笑（不该当真）
+            // 发之前看看：一句生硬、带语病的英文回复
+            monitor.draft = "Ok. Please reply me soon, we need to know today."
+            try await Task.sleep(for: .seconds(2))
+            monitor.checkDraft()
+            try await Task.sleep(for: .seconds(1))
+            while monitor.checkingDraft { try await Task.sleep(for: .milliseconds(200)) }
+            try await Task.sleep(for: .seconds(10))
+            // 粘贴模式：先放一张客户邮件的截图，再贴老师的一句话
             settings.manualMode = true
             monitor.pause()
-            for (text, hold) in [("Prof. Lee: This is a good start, but I think the argument needs quite a bit more work.", 10.0),
-                                 ("Sam: lol this exam is going to be the death of me 💀", 9.0)] {
+            if let path = environment["UNDERTONE_RECORD_SCREENSHOT"], let image = NSImage(contentsOfFile: path) {
+                var rect = CGRect(origin: .zero, size: image.size)
+                if let cg = image.cgImage(forProposedRect: &rect, context: nil, hints: nil) {
+                    try await Task.sleep(for: .seconds(1))
+                    monitor.analyzeScreenshot(cg)
+                    try await Task.sleep(for: .seconds(1))
+                    while monitor.readingScreenshot { try await Task.sleep(for: .milliseconds(100)) }
+                    monitor.manualContact = "Mark Davis"   // 邮件截图认不出发件人，面板上显示他的名字
+                    while monitor.analyzing { try await Task.sleep(for: .milliseconds(200)) }
+                    try await Task.sleep(for: .seconds(10))
+                }
+            }
+            monitor.manualContact = "Prof. Lee"
+            choose(relationship: "老师")
+            for (text, hold) in [("Prof. Lee: This is a good start, but I think the argument needs quite a bit more work.", 10.0)] {
                 monitor.manualTranscript = text
                 try await Task.sleep(for: .seconds(2))
                 monitor.analyzeManual(text)
@@ -71,11 +93,20 @@ final class DemoRecorder: NSObject, SCRecordingOutputDelegate {
                 try await Task.sleep(for: .seconds(hold))
             }
             try await stopRecording()
+            // 只为录演示记下的虚构联系人，录完删掉
+            monitor.forget("Mark Davis")
+            monitor.forget("Prof. Lee")
             log.notice("recording finished: \(self.output.path, privacy: .public)")
         } catch {
             log.error("recording failed: \(error.localizedDescription, privacy: .public)")
         }
         NSApp.terminate(nil)
+    }
+
+    /// 和点面板上的关系按钮一样：认出联系人时记在联系人身上；粘贴模式用全局选择，所以两个都设。
+    private func choose(relationship: String) {
+        settings.relationship = relationship
+        if let contact = monitor.currentContact { monitor.editMemory(contact) { $0.relationship = relationship } }
     }
 
     private func findDemoWindow() async throws -> SCWindow? {

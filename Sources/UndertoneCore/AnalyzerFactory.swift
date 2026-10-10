@@ -55,8 +55,8 @@ public enum TunedModel {
 public struct AnalyzerConfig: Sendable {
     public var llm: LLMSource = .localDefault
     public var presets: URL = Presets.directory
-    /// 大模型提示词文件；评测微调过的模型时换成 subtext.ft.zh.json。
-    public var llmPreset = "subtext.llm.zh.json"
+    /// 大模型提示词文件，跟着界面语言：英文界面用英文解释（subtext.llm.en.json）。评测微调过的模型时换成 subtext.ft.zh.json。
+    public var llmPreset = Presets.file("subtext.llm")
     /// 辅助任务（发之前看看、看表情图）用的模型；nil 时和读话外音用同一个。用微调模型时这里是标准模型。
     public var auxiliaryLLM: LLMSource?
 
@@ -70,7 +70,7 @@ public struct AnalyzerConfig: Sendable {
 
     /// 「发之前看看」：检查用户要发的英文回复。
     public func makeDraftChecker(relationship: String? = nil) throws -> DraftChecker {
-        let prompt = try LLMPrompt.load(from: presets.appending(path: "draft.llm.zh.json"))
+        let prompt = try LLMPrompt.load(from: presets.appending(path: Presets.file("draft.llm", in: presets)))
         return DraftChecker(backend: backend(for: prompt, source: auxiliaryLLM ?? llm), prompt: prompt, relationship: relationship)
     }
 
@@ -94,5 +94,11 @@ public enum Presets {
             return bundled
         }
         return URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appending(path: "presets")
+    }
+
+    /// 提示词在某种语言下的文件名，例如 subtext.llm.en.json：解释、理由和建议都用这种语言写。没有这种语言的版本时用中文版。
+    public static func file(_ base: String, language: AppLanguage = .current, in directory: URL = directory) -> String {
+        let name = "\(base).\(language.rawValue).json"
+        return FileManager.default.fileExists(atPath: directory.appending(path: name).path) ? name : "\(base).zh.json"
     }
 }

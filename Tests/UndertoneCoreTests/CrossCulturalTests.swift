@@ -6,7 +6,13 @@ final class CrossCulturalTests: XCTestCase {
     private let presets = URL(fileURLWithPath: #filePath).deletingLastPathComponent().appending(path: "../../presets").standardized
 
     func testSubtextPresetMatchesSchemaAndVocabulary() throws {
-        let prompt = try LLMPrompt.load(from: presets.appending(path: "subtext.llm.zh.json"))
+        // 中文版直接输出中文规范值；英文版输出英文标签，解析时换回规范值
+        try checkSubtextPreset("subtext.llm.zh.json", label: \.zh)
+        try checkSubtextPreset("subtext.llm.en.json", label: \.en)
+    }
+
+    private func checkSubtextPreset(_ file: String, label: KeyPath<Term, String>) throws {
+        let prompt = try LLMPrompt.load(from: presets.appending(path: file))
         XCTAssertEqual(prompt.language, .en, "聊天记录是英文，用英文的框架")
         XCTAssertEqual(prompt.contextLength, 8192)
         XCTAssertGreaterThanOrEqual(prompt.examples.count, 10)
@@ -17,32 +23,46 @@ final class CrossCulturalTests: XCTestCase {
         XCTAssertEqual(Set(properties.keys), Set(LLMAnalyzer.subtextKeys))
         XCTAssertEqual(Set(object["required"] as? [String] ?? []), Set(properties.keys))
         let enums = { (key: String) in ((properties[key] as? [String: Any])?["enum"] as? [String]) ?? [] }
-        // 模型直接输出中文规范值：每个选项都必须在词表里，配色、记忆和界面才认得出
+        // 每个选项都必须认得出是哪个规范值，配色、记忆和界面才对得上
         let tables: [(String, [Term])] = [("reading", Vocabulary.readings), ("emotion", Vocabulary.emotions),
                                           ("target", Vocabulary.targets), ("best_response", Vocabulary.responses)]
         for (key, terms) in tables {
-            XCTAssertFalse(enums(key).isEmpty, key)
-            for value in enums(key) { XCTAssertEqual(Vocabulary.canonical(value, in: terms), value, "\(key): \(value)") }
+            XCTAssertFalse(enums(key).isEmpty, "\(file) \(key)")
+            for value in enums(key) {
+                let term = terms.first { $0[keyPath: label] == value }
+                XCTAssertNotNil(term, "\(file) \(key): \(value)")
+                XCTAssertEqual(Vocabulary.canonical(value, in: terms), term?.zh, "\(file) \(key): \(value)")
+            }
         }
-        XCTAssertEqual(Set(enums("reading")), Set(Vocabulary.readings.map(\.zh)), "schema 和词表的话外音类型要一一对应")
+        XCTAssertEqual(Set(enums("reading")), Set(Vocabulary.readings.map { $0[keyPath: label] }), "schema 和词表的话外音类型要一一对应")
         for example in prompt.examples {
             XCTAssertTrue(example.chat.contains("\n\nAnalyze only their latest message:\nThem: "), example.chat)
             XCTAssertEqual(Set(example.answer.keys), Set(LLMAnalyzer.subtextKeys), example.chat)
             for (key, _) in tables {
-                if case .string(let value)? = example.answer[key] { XCTAssertTrue(enums(key).contains(value), "\(key): \(value)") }
+                if case .string(let value)? = example.answer[key] { XCTAssertTrue(enums(key).contains(value), "\(file) \(key): \(value)") }
             }
         }
     }
 
+    /// 英文界面用英文解释；没有英文版的提示词（微调模型的）用中文版。
+    func testPresetFollowsLanguage() {
+        XCTAssertEqual(Presets.file("subtext.llm", language: .zh, in: presets), "subtext.llm.zh.json")
+        XCTAssertEqual(Presets.file("subtext.llm", language: .en, in: presets), "subtext.llm.en.json")
+        XCTAssertEqual(Presets.file("draft.llm", language: .en, in: presets), "draft.llm.en.json")
+        XCTAssertEqual(Presets.file("subtext.ft", language: .en, in: presets), "subtext.ft.zh.json")
+    }
+
     /// few-shot 示例的格式必须和真实分析时一模一样，否则小模型会学歪。
     func testExampleChatsMatchLiveFormat() throws {
-        let prompt = try LLMPrompt.load(from: presets.appending(path: "subtext.llm.zh.json"))
-        let first = try XCTUnwrap(prompt.examples.first)
-        let rendered = ChatState.render(
-            context: [ChatMessage(speaker: .me, text: "Hi John, attached is our quotation for 5,000 units. Let me know if you have any questions.", top: 0)],
-            latest: ChatMessage(speaker: .them, text: "Thanks for the quote. We'll review it internally and get back to you.", top: 1),
-            relationship: "客户", language: .en)
-        XCTAssertEqual(first.chat, rendered)
+        for file in ["subtext.llm.zh.json", "subtext.llm.en.json"] {
+            let prompt = try LLMPrompt.load(from: presets.appending(path: file))
+            let first = try XCTUnwrap(prompt.examples.first)
+            let rendered = ChatState.render(
+                context: [ChatMessage(speaker: .me, text: "Hi John, attached is our quotation for 5,000 units. Let me know if you have any questions.", top: 0)],
+                latest: ChatMessage(speaker: .them, text: "Thanks for the quote. We'll review it internally and get back to you.", top: 1),
+                relationship: "客户", language: .en)
+            XCTAssertEqual(first.chat, rendered, file)
+        }
     }
 
     func testConfigUsesSubtextPreset() throws {
@@ -142,14 +162,22 @@ final class DraftCheckerTests: XCTestCase {
     private let presets = URL(fileURLWithPath: #filePath).deletingLastPathComponent().appending(path: "../../presets").standardized
 
     func testDraftPresetMatchesSchemaAndLiveFormat() throws {
-        let prompt = try LLMPrompt.load(from: presets.appending(path: "draft.llm.zh.json"))
+        try checkDraftPreset("draft.llm.zh.json", label: \.zh)
+        try checkDraftPreset("draft.llm.en.json", label: \.en)
+    }
+
+    private func checkDraftPreset(_ file: String, label: KeyPath<Term, String>) throws {
+        let prompt = try LLMPrompt.load(from: presets.appending(path: file))
         XCTAssertGreaterThanOrEqual(prompt.examples.count, 5)
         let schema = try XCTUnwrap(prompt.schema)
         let object = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(schema.utf8)) as? [String: Any])
         let properties = try XCTUnwrap(object["properties"] as? [String: Any])
         XCTAssertEqual(Set(properties.keys), Set(DraftChecker.answerKeys))
         let verdicts = try XCTUnwrap((properties["verdict"] as? [String: Any])?["enum"] as? [String])
-        XCTAssertEqual(Set(verdicts), Set(Vocabulary.verdicts.map(\.zh)))
+        XCTAssertEqual(Set(verdicts), Set(Vocabulary.verdicts.map { $0[keyPath: label] }))
+        for verdict in verdicts {
+            XCTAssertEqual(Vocabulary.canonical(verdict, in: Vocabulary.verdicts), Vocabulary.verdicts.first { $0[keyPath: label] == verdict }?.zh, verdict)
+        }
         for example in prompt.examples {
             XCTAssertEqual(Set(example.answer.keys), Set(DraftChecker.answerKeys), example.chat)
             XCTAssertTrue(example.chat.contains("\n\nMy draft reply:\n"), example.chat)

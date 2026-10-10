@@ -1,0 +1,152 @@
+{
+  "type": "object",
+  "properties": {
+    "literal": {
+      "type": "string",
+      "description": "What the message literally says, in plain English"
+    },
+    "why": {
+      "type": "string",
+      "description": "One sentence: what native speakers usually mean by this here, and why"
+    },
+    "reading": {
+      "type": "string",
+      "enum": [
+        "means what it says",
+        "just being polite",
+        "a polite no",
+        "not decided yet",
+        "waiting on you",
+        "not happy",
+        "genuinely interested",
+        "negotiating",
+        "sarcastic",
+        "joking",
+        "red flag"
+      ]
+    },
+    "real_meaning": {
+      "type": "string",
+      "description": "One sentence: what they actually mean"
+    },
+    "confidence": {
+      "type": "integer",
+      "enum": [
+        1,
+        2,
+        3
+      ]
+    },
+    "emotion": {
+      "type": "string",
+      "enum": [
+        "happy",
+        "calm",
+        "affectionate",
+        "sad",
+        "hurt",
+        "angry",
+        "disappointed",
+        "anxious",
+        "cold",
+        "embarrassed"
+      ]
+    },
+    "intensity": {
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "target": {
+      "type": "string",
+      "enum": [
+        "me",
+        "themselves",
+        "someone else",
+        "the situation"
+      ]
+    },
+    "angry_at_me": {
+      "type": "boolean"
+    },
+    "perfunctory": {
+      "type": "boolean"
+    },
+    "needs_comfort": {
+      "type": "boolean"
+    },
+    "testing": {
+      "type": "boolean"
+    },
+    "cold_distance": {
+      "type": "boolean"
+    },
+    "conflict": {
+      "type": "boolean"
+    },
+    "manipulation": {
+      "type": "boolean"
+    },
+    "self_harm": {
+      "type": "boolean"
+    },
+    "asks_money": {
+      "type": "boolean"
+    },
+    "best_response": {
+      "type": "string",
+      "enum": [
+        "chat normally",
+        "clarify",
+        "apologize",
+        "follow up",
+        "give space",
+        "hold boundary",
+        "verify identity",
+        "comfort",
+        "show care",
+        "get help"
+      ]
+    },
+    "suggested_reply": {
+      "type": "string",
+      "description": "One English reply the user can send as is"
+    },
+    "reply_zh": {
+      "type": "string",
+      "description": "In plain English: what this reply does"
+    },
+    "memory_note": {
+      "type": "string",
+      "description": "Something concrete worth remembering, or an empty string"
+    }
+  },
+  "required": [
+    "literal",
+    "why",
+    "reading",
+    "real_meaning",
+    "confidence",
+    "emotion",
+    "intensity",
+    "target",
+    "angry_at_me",
+    "perfunctory",
+    "needs_comfort",
+    "testing",
+    "cold_distance",
+    "conflict",
+    "manipulation",
+    "self_harm",
+    "asks_money",
+    "best_response",
+    "suggested_reply",
+    "reply_zh",
+    "memory_note"
+  ],
+  "additionalProperties": false
+}

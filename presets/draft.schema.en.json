@@ -1,0 +1,40 @@
+{
+  "type": "object",
+  "properties": {
+    "lands_as": {
+      "type": "string",
+      "description": "One sentence: how the other person will feel reading it"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "reads well",
+        "too blunt",
+        "too apologetic",
+        "too casual",
+        "unclear",
+        "grammar issues"
+      ]
+    },
+    "issues": {
+      "type": "string",
+      "description": "One sentence: the exact problem"
+    },
+    "rewrite": {
+      "type": "string",
+      "description": "A more natural English version"
+    },
+    "rewrite_zh": {
+      "type": "string",
+      "description": "In plain English: what the rewrite changes"
+    }
+  },
+  "required": [
+    "lands_as",
+    "verdict",
+    "issues",
+    "rewrite",
+    "rewrite_zh"
+  ],
+  "additionalProperties": false
+}

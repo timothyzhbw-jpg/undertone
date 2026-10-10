@@ -1,15 +1,15 @@
 # Undertone
 
-**Reads the subtext in English messages, and explains it in Chinese.**
+**Reads the subtext in English messages, and explains it in plain English or Chinese.**
 
 **[Download for Mac](https://github.com/timothyzhbw-jpg/undertone/releases/latest)** · [中文说明](README.zh-CN.md)
 
-Undertone is a macOS floating panel for Chinese speakers who study, work or trade in English. When a buyer writes *"We'll review it internally and get back to you"*, a manager says *"That's an interesting idea, let's keep it in mind"*, or a professor sends *"Just checking in"*, Undertone tells you:
+Undertone is a macOS floating panel for people who study, work or trade in English as a second language. It was built first for Chinese speakers, and explains in plain English or in Chinese. When a buyer writes *"We'll review it internally and get back to you"*, a manager says *"That's an interesting idea, let's keep it in mind"*, or a professor sends *"Just checking in"*, Undertone tells you:
 
-- **what they actually mean**, in Chinese (still deciding, a polite no, waiting on you…);
+- **what they actually mean** (still deciding, a polite no, waiting on you…);
 - **why** native speakers say it that way in this setting;
 - **how sure** it is;
-- **a natural English reply**, with its Chinese meaning.
+- **a natural English reply** you can send.
 
 Before you send your own reply, **Check before you send** tells you how your draft will come across (too blunt, too apologetic, too casual, unclear, grammar slips) and offers a more natural version.
 
@@ -50,7 +50,7 @@ chat window ──ScreenCaptureKit──▶ Apple Vision OCR + pixel layout dete
 ```
 
 - **Capture and layout.** ScreenCaptureKit captures only the chat window. A pixel-level detector finds bubbles, avatars, emoji and stickers, so it can tell their messages from yours. Emoji are painted out before OCR, then cropped and named by the vision model.
-- **Analysis.** A Chinese system prompt with an ordered decision checklist and 15 worked examples covering trade, workplace, campus, friends, hard negatives, a scam and a crisis message, with a JSON answer. The model explains the convention and the real meaning first, and picks the label last.
+- **Analysis.** A system prompt (in [English](presets/subtext.llm.en.json) or [Chinese](presets/subtext.llm.zh.json), following the interface language) with an ordered decision checklist and 15 worked examples covering trade, workplace, campus, friends, hard negatives, a scam and a crisis message, with a JSON answer. The model explains the convention and the real meaning first, and picks the label last.
 - **Robust parsing.** Small models often quote English phrases inside JSON strings without escaping them. The parser repairs that instead of failing.
 - **Per-contact memory.** Notes such as "first order 5,000 pcs by end of March" are saved only when you confirm.
 - **Paste mode** for email, Slack, Teams or anything else you can copy, and **screenshots**: paste or drop a phone chat or email screenshot and it's read on your Mac (OCR plus the same bubble detector), shown as editable text, then analyzed. **Voice messages** can optionally be transcribed with Whisper via [deAPI](https://deapi.ai), only when you tap Listen.
@@ -80,17 +80,21 @@ A one-time local code-signing certificate (Keychain Access → Certificate Assis
 
 All sets are hand-written English messages with expected readings and must-raise / must-not-raise signals. They are small, so read the numbers as direction, not as a benchmark.
 
-| Set | Size | Prompted qwen3.5:4b (local) |
-|---|---|---|
-| [`eval/crosscultural.jsonl`](eval/crosscultural.jsonl) (development) | 42 | reading 34/40 (85%), signals 3/3, false alarms 1/18 |
-| [`eval/crosscultural.holdout.jsonl`](eval/crosscultural.holdout.jsonl) (first held-out set) | 29 | reading 22/28 (79%) |
-| [`eval/crosscultural.holdout2.jsonl`](eval/crosscultural.holdout2.jsonl) (fresh set, not used for tuning) | 40 | reading 32/39 (82%), signals 6/8, false alarms 0/10 |
-| [`eval/draft.jsonl`](eval/draft.jsonl) (Check before you send) | 26 | verdict 23/26 (88%) |
+Prompted qwen3.5:4b, running locally. The two columns are the two languages the explanations can be written in:
+
+| Set | Size | Chinese explanations | English explanations |
+|---|---|---|---|
+| [`eval/crosscultural.jsonl`](eval/crosscultural.jsonl) (development) | 42 | reading 34/40 (85%) | 38/40 (95%) |
+| [`eval/crosscultural.holdout.jsonl`](eval/crosscultural.holdout.jsonl) (first held-out set) | 29 | 22/28 (79%) | — |
+| [`eval/crosscultural.holdout2.jsonl`](eval/crosscultural.holdout2.jsonl) (fresh set, not used for tuning) | 40 | **32/39 (82%)** | **30/39 (77%)** |
+| [`eval/draft.jsonl`](eval/draft.jsonl) (Check before you send) | 26 | verdict 23/26 (88%) | 24/26 (92%) |
+
+The English prompt is a translation of the Chinese one, made after the fresh set was written; it was run once on each set and not tuned on any of them. The development set was used to tune the Chinese prompt, so its numbers flatter both. On the fresh set the two are within two messages of each other.
 
 The prompt was last tuned against the 324 labelled messages in [`train/pool.jsonl`](train/pool.jsonl), going from 67% to 75% there. Replacing a blunt "don't over-interpret" rule with an ordered decision checklist fixed most of the cases where polite filler and soft refusals were read as literal. On the fresh held-out set, the same change moved the score only from 79% to 82%, so treat the larger gains as partly the model learning the labelling conventions. Details are in [`train/RESULTS.md`](train/RESULTS.md). Run the evaluations yourself:
 
 ```bash
-swift run Undertone --eval eval/crosscultural.jsonl results.jsonl
+swift run Undertone --eval eval/crosscultural.jsonl results.jsonl              # add --language en for English explanations
 python3 scripts/score_eval.py eval/crosscultural.jsonl results.jsonl
 ```
 
@@ -127,7 +131,7 @@ Details, scripts and the pitfalls hit along the way are in [`train/RESULTS.md`](
 ## Development
 
 ```bash
-swift build && swift test                  # build, then 136 unit tests (parsing, layout, prompts, safety nets)
+swift build && swift test                  # build, then 137 unit tests (parsing, layout, prompts, safety nets)
 swift run Undertone --inspect chat.png     # run recognition on one screenshot
 swift run Undertone --render-previews out  # render every panel state with fictional data
 ```

@@ -4,7 +4,7 @@
 
 **[下载 Mac 版](https://github.com/timothyzhbw-jpg/undertone/releases/latest)** · [English](README.md)
 
-Undertone 是一个 macOS 悬浮面板，给在英语环境里上学、工作、做外贸的中文用户用。客户说 *"We'll review it internally and get back to you"*，上司说 *"That's an interesting idea, let's keep it in mind"*，老师发来一句 *"Just checking in"*，Undertone 会告诉你：
+Undertone 是一个 macOS 悬浮面板，给在英语环境里上学、工作、做外贸的中文用户用。界面切到 English 时，会改用简单的英文解释，其他母语的人也能用。客户说 *"We'll review it internally and get back to you"*，上司说 *"That's an interesting idea, let's keep it in mind"*，老师发来一句 *"Just checking in"*，Undertone 会告诉你：
 
 - **对方其实是什么意思**（还没决定、委婉拒绝、在催你……）；
 - **为什么**英语母语者在这种场合会这么说；
@@ -71,12 +71,16 @@ swift run UndertoneDemo
 
 评测集都是手写的英文消息，标注了期望的话外音类型和必须报、绝不能报的信号。样本很小，数字只说明大方向。
 
-| 评测集 | 条数 | 本地 qwen3.5:4b（提示词版本） |
-|---|---|---|
-| 开发集 [`eval/crosscultural.jsonl`](eval/crosscultural.jsonl) | 42 | 话外音类型 34/40（85%） |
-| 第一套留出集 [`eval/crosscultural.holdout.jsonl`](eval/crosscultural.holdout.jsonl) | 29 | 22/28（79%） |
-| 新留出集 [`eval/crosscultural.holdout2.jsonl`](eval/crosscultural.holdout2.jsonl)（调提示词时没用过） | 40 | 32/39（82%） |
-| 发之前看看 [`eval/draft.jsonl`](eval/draft.jsonl) | 26 | 23/26（88%） |
+本地 qwen3.5:4b（提示词版本），两列是解释用的两种语言：
+
+| 评测集 | 条数 | 中文解释 | 英文解释 |
+|---|---|---|---|
+| 开发集 [`eval/crosscultural.jsonl`](eval/crosscultural.jsonl) | 42 | 话外音类型 34/40（85%） | 38/40（95%） |
+| 第一套留出集 [`eval/crosscultural.holdout.jsonl`](eval/crosscultural.holdout.jsonl) | 29 | 22/28（79%） | — |
+| 新留出集 [`eval/crosscultural.holdout2.jsonl`](eval/crosscultural.holdout2.jsonl)（调提示词时没用过） | 40 | **32/39（82%）** | **30/39（77%）** |
+| 发之前看看 [`eval/draft.jsonl`](eval/draft.jsonl) | 26 | 23/26（88%） | 24/26（92%） |
+
+英文提示词是在新留出集写好之后从中文版翻译过来的，每套只跑了一次，没有对着任何一套调过。开发集调中文提示词时用过，两种语言在上面的分数都偏高；在新留出集上两者只差两条。
 
 提示词最近一次是对着 [`train/pool.jsonl`](train/pool.jsonl) 里 324 条人工标注的消息调的：把一条笼统的「别过度解读」换成按顺序判断的清单以后，那 324 条从 67% 提到 75%，客套话、委婉拒绝被当成字面意思的情况少了很多。但在新留出集上只从 79% 到 82%，所以更大的那部分提升里，有一些是模型学会了我的标注习惯。本地 4B 模型大约每三到五条会看错一条，请对照原话和你对这个人的了解来判断，它给的只是参考。
 

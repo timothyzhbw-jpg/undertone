@@ -35,8 +35,8 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.segmented)
                 } footer: {
-                    Text(L("界面、分析用的提示词、关键词安全网和求助热线都会换成所选语言。",
-                           "Switches the interface, the analysis prompts, the keyword safety nets and the crisis resources."))
+                    Text(L("界面和解释的语言：选 English 时，话外音、理由和「发之前看看」的意见都用简单的英文写。关键词安全网和求助热线也跟着换。",
+                           "The language of the interface and the explanations: with English, the subtext, the reasons and the draft feedback are all in plain English. The keyword safety nets and crisis resources switch too."))
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
 
@@ -180,7 +180,7 @@ struct SettingsView: View {
             .task { await loadInstalledModels() }
             if TunedModel.isTuned(settings.ollamaModel) {
                 Text(L("只学了读话外音的本地微调模型：每条约快三成，但在全新的测试集上明显不如标准模型准（62% 对 79%），也更容易漏掉骗局。适合想试试的人，日常建议用标准模型。「发之前看看」和看表情图仍用标准模型。",
-                       "A local model fine-tuned only for reading subtext: about 30% faster per message, but clearly less accurate than the standard model on fresh test messages (62% vs 79%) and more likely to miss scams. Worth a try, but use Standard day to day. Draft checks and emoji images still use the standard model."))
+                       "A local model fine-tuned only for reading subtext: about 30% faster per message, but clearly less accurate than the standard model on fresh test messages (62% vs 79%) and more likely to miss scams. Worth a try, but use Standard day to day. Draft checks and emoji images still use the standard model. It only explains in Chinese."))
                     .font(.system(size: 11)).foregroundStyle(.secondary)
             } else if !installedModels.isEmpty, !installedModels.contains(where: { $0.hasPrefix(TunedModel.name) }) {
                 Text(L("快速模式需要先在本机导入微调模型，见 train/ollama。", "Fast mode needs the fine-tuned model imported locally first — see train/ollama."))

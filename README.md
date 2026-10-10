@@ -96,7 +96,7 @@ The English prompt is a translation of the Chinese one, made after the fresh set
 The other explanation languages are built from the English prompt by [`scripts/make_language_presets.py`](scripts/make_language_presets.py). The rules stay in English, which the 4B model follows best, and the worked examples (15 for reading, 7 for drafts) carry their explanations in the target language ([`presets/languages/`](presets/languages)). Suggested replies and labels are the same in every language. Each language was run once on the fresh held-out set and the draft set through the same code path, and [`scripts/check_language.py`](scripts/check_language.py) checked that the explanations really came out in that language:
 
 <!-- big-table:start -->
-**Larger run, 363 messages per language.** The 324 labelled messages in [`train/pool_eval.jsonl`](train/pool_eval.jsonl) plus the 39-message fresh held-out set, so one message is now under 0.3 points. The pool was used to tune the Chinese prompt's rules, which every language shares, so the absolute numbers are a little optimistic; the comparison between languages is fair. This run is still going: 4 of 13 languages are done, and the others have only the 39-message results in the next table.
+**Larger run, 363 messages per language.** The 324 labelled messages in [`train/pool_eval.jsonl`](train/pool_eval.jsonl) plus the 39-message fresh held-out set, so one message is now under 0.3 points. The pool was used to tune the Chinese prompt's rules, which every language shares, so the absolute numbers are a little optimistic; the comparison between languages is fair. This run is still going: 8 of 13 languages are done, and the others have only the 39-message results in the next table.
 
 | Explanations in | Reading, 363 messages | 95% interval | Fresh held-out (39) | Check before you send (26) | Explanations in that language |
 |---|---|---|---|---|---|
@@ -104,6 +104,10 @@ The other explanation languages are built from the English prompt by [`scripts/m
 | English | **77%** (281/363) | 73–81% | 32/39 | 24/26 | 390/390 |
 | Spanish | **77%** (278/363) | 72–81% | 29/39 | 20/26 | 390/390 |
 | French | **79%** (287/363) | 75–83% | 32/39 | 23/26 | 390/390 |
+| Portuguese | **77%** (281/363) | 73–81% | 26/39 | 21/26 | 390/390 |
+| German | **74%** (267/363) | 69–78% | 31/39 | 23/26 | 390/390 |
+| Japanese | **71%** (257/363) | 66–75% | 27/39 | 24/26 | 390/390 |
+| Korean | **76%** (275/362) | 71–80% | 29/38 | 21/26 | 389/389 |
 
 Languages whose intervals overlap can't be told apart at this size.
 <!-- big-table:end -->

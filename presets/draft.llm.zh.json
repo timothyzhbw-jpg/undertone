@@ -51,8 +51,8 @@
         "lands_as": "拒绝得很硬，像把谈判的门关上了。",
         "verdict": "太生硬",
         "issues": "\"impossible\" 太绝对，商务谈判里通常先表示理解，再说明做不到。",
-        "rewrite": "I'm afraid we can't go as low as $3.50. Is there any flexibility on your side?",
-        "rewrite_zh": "恐怕我们做不到 3.5 美元。你们那边有没有调整的空间？"
+        "rewrite": "I'm afraid we can't go that low. Is there any flexibility on your side?",
+        "rewrite_zh": "恐怕我们降不到这个价。你们那边有没有调整的空间？"
       }
     },
     {

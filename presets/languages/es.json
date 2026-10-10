@@ -1,0 +1,148 @@
+{
+  "name": "Spanish",
+  "native": "español",
+  "subtext": [
+    [
+      "Gracias por la cotización. La revisaremos internamente y te responderemos.",
+      "Es la respuesta educada típica después de una cotización: no dice ni sí ni no. No preguntan por cantidad, plazo de entrega ni forma de pago, lo que suele indicar que siguen comparando precios y que el interés es moderado.",
+      "La recibieron, te están comparando con otros proveedores y no van a decidir pronto.",
+      "Perfecto, John. Si unas muestras o un pedido mínimo distinto les ayudan a evaluarlo, avísame. ¿Para qué fecha piensan decidir?",
+      ""
+    ],
+    [
+      "Mmm, es un poco más alto que lo que estamos viendo en otros proveedores.",
+      "Compararte con otros proveedores es una forma habitual de presionar el precio. Puede que no tengan una oferta más baja, pero el precio es ahora su principal preocupación.",
+      "Quieren que bajes el precio, o al menos que expliques por qué vale lo que cuesta.",
+      "Entiendo. ¿Podrías decirme qué precio objetivo tienen en mente? Con un volumen mayor, quizá tengamos margen.",
+      ""
+    ],
+    [
+      "¡Gracias! ¿Me puedes enviar la ficha técnica y tu plazo de entrega para 10.000 piezas? Las necesitaríamos para finales de marzo.",
+      "Pedir la ficha técnica y el plazo de entrega de una cantidad grande, con una fecha de entrega, es una señal clara de compra, no simple cortesía.",
+      "Están pensando en serio en hacer el pedido y quieren saber si puedes entregar antes de finales de marzo.",
+      "Por supuesto, Maria. Te envío la ficha técnica hoy y mañana te confirmo con la fábrica el plazo de entrega para 10.000 piezas.",
+      "Maria necesita 10.000 piezas entregadas antes de finales de marzo."
+    ],
+    [
+      "Tenga en cuenta que nuestra cuenta bancaria ha cambiado debido a una auditoría. Le rogamos que transfiera el saldo a la nueva cuenta indicada abajo.",
+      "Un cambio repentino de cuenta bancaria, con una excusa como una auditoría, es la estafa más común en el comercio exterior: alguien se apodera del correo del cliente o del proveedor, o lo imita, y te pide que pagues a su cuenta.",
+      "Puede que no sea la persona real. Alguien podría estar intentando quedarse con este pago.",
+      "Gracias por avisarnos. Antes de cambiar nada, te llamaré a tu número de siempre para confirmar el cambio.",
+      ""
+    ],
+    [
+      "Lo recibimos, pero lamentablemente alrededor del 10 % de las unidades están dañadas. Es bastante decepcionante.",
+      "En inglés de negocios, \"quite disappointing\" ya es una expresión fuerte. Están muy descontentos y la relación está en riesgo.",
+      "Están muy descontentos con este envío y esperan que les des una solución.",
+      "Lo siento mucho, Tom. ¿Podrías enviarnos fotos de las unidades dañadas? Lo revisamos enseguida y mañana te damos una solución.",
+      "Alrededor del 10 % del envío de Tom llegó dañado; está muy descontento."
+    ],
+    [
+      "Como decía en mi último correo, están en la carpeta compartida.",
+      "En el trabajo, \"Per my last email\" es una forma educada muy conocida de decir \"ya te lo dije\", con algo de impaciencia.",
+      "Ya te lo había dicho. No leíste bien mi correo.",
+      "Perdona, se me pasó. Ya lo encontré, ¡gracias, Sarah!",
+      ""
+    ],
+    [
+      "Es una idea interesante. Tengámosla en cuenta para más adelante.",
+      "En el trabajo, \"interesting idea\" junto con \"keep it in mind for later\" suele ser una forma educada de decir que no, por ahora.",
+      "No lo van a hacer ahora. Mejor no insistir.",
+      "Me parece bien. Si en algún momento resulta útil, con gusto preparo una propuesta breve.",
+      ""
+    ],
+    [
+      "Hola, solo quería preguntar: todavía no he recibido tu borrador.",
+      "\"Just checking in\" suena amable, pero cuando un profesor escribe primero así, ya pasó la fecha que prometiste y quiere el borrador pronto.",
+      "Dijiste que lo enviarías el viernes. Ya es hora de enviarlo.",
+      "Hola, profesor Lee, disculpe la demora. Le envío el borrador mañana antes del mediodía.",
+      ""
+    ],
+    [
+      "Me parece bien, pásate por mi horario de atención el martes a las 2.",
+      "Confirma una hora y un lugar concretos. No hay nada oculto, así que se puede tomar al pie de la letra.",
+      "Ve a la oficina del profesor el martes a las 2 de la tarde.",
+      "¡Perfecto, gracias! Nos vemos el martes a las 2.",
+      "Horario de atención con el profesor el martes a las 2 de la tarde."
+    ],
+    [
+      "¡Fue un gusto conocerte! Tenemos que tomar un café algún día.",
+      "En Estados Unidos, \"We should grab coffee sometime\" sin fecha suele ser solo algo amable, no un plan real. Si quieres que pase, propón tú una hora.",
+      "Le caíste bien, pero esto todavía no es una invitación real.",
+      "¡Igualmente! Me encantaría. ¿Tienes tiempo el jueves por la tarde?",
+      ""
+    ],
+    [
+      "No te preocupes, ¡tómate tu tiempo!",
+      "Por algo pequeño como llegar 5 minutos tarde, \"No worries\" en el trabajo en Estados Unidos de verdad significa que no pasa nada. No le des más vueltas.",
+      "De verdad no pasa nada.",
+      "¡Gracias, ya casi llego!",
+      ""
+    ],
+    [
+      "Jaja, eres lo peor 😂 bueno, vale, voy.",
+      "Entre amigos, \"you're the worst\" con 😂 es una broma cariñosa, no un insulto de verdad.",
+      "Lo convenciste y le alegra ir.",
+      "¡Jaja, ya me lo agradecerás! Nos vemos allí 🙌",
+      ""
+    ],
+    [
+      "Ah, no te preocupes, ya me he acostumbrado.",
+      "\"No worries\" seguido de \"I'm used to it by now\" dice que esto pasa a menudo. Decir \"no pasa nada\" cuando te has olvidado de alguien otra vez es un sarcasmo típico.",
+      "En realidad le dolió: siente que siempre te olvidas.",
+      "Lo siento mucho, no estuvo bien. ¿Te puedo llamar esta noche?",
+      ""
+    ],
+    [
+      "No es por molestar, pero hubo bastante ruido después de medianoche.",
+      "\"Not to be rude, but\" anuncia una queja. Lo importante es la segunda parte: anoche hubo demasiado ruido y le molestó.",
+      "El ruido de anoche le molestó y quiere que tengas más cuidado la próxima vez.",
+      "¡Perdón! La próxima vez haremos menos ruido y terminaremos antes.",
+      ""
+    ],
+    [
+      "Sinceramente, a todos les iría mejor si yo no estuviera.",
+      "No es una exageración cotidiana. Está diciendo que se siente una carga y que quizá no quiere vivir, así que hay que tomarlo en serio.",
+      "Puede que esté pensando en quitarse la vida y necesita de verdad a alguien a su lado.",
+      "Me alegra mucho que me lo hayas contado. ¿Estás a salvo ahora mismo? Estoy aquí y quiero saber qué está pasando.",
+      ""
+    ]
+  ],
+  "draft": [
+    [
+      "Suena a orden. Puede parecer que reclamas una deuda y resultar un poco brusco.",
+      "\"Please send me ... today\" pide el pago directamente, sin suavizarlo y sin dar un motivo.",
+      "¿Podrías organizar hoy el pago del saldo, para que podamos enviar el lunes como estaba previsto?"
+    ],
+    [
+      "Demasiadas disculpas. El mensaje suena inseguro, y el profesor puede sentir que tiene que tranquilizarte.",
+      "Te disculpas tres veces en un solo mensaje. Preguntarle a un profesor si tiene tiempo es normal y no necesita disculpas.",
+      "Hola, profesor Lee, ¿tendría unos minutos esta semana para revisar mi tarea? ¡Gracias!"
+    ],
+    [
+      "Demasiado informal para un profesor. Parece un mensaje a un amigo y puede sonar irrespetuoso.",
+      "\"hey prof\", \"u\", \"tmr\" y \"abt\" están bien con amigos, no con un profesor.",
+      "Hola, profesor Lee, ¿está disponible mañana? Me gustaría hablar sobre mi nota."
+    ],
+    [
+      "Natural y breve. Sabrán que lo recibiste y que te vas a encargar.",
+      "El tono y la longitud son adecuados, y \"heads-up\" es una expresión muy natural en el trabajo.",
+      "Gracias por el aviso, actualizo la invitación."
+    ],
+    [
+      "Un no muy tajante. Suena a que das por terminada la negociación.",
+      "\"Impossible\" es demasiado absoluto. En los negocios, primero se muestra comprensión y luego se dice lo que no se puede hacer.",
+      "Me temo que no podemos bajar tanto. ¿Tienen algo de flexibilidad por su parte?"
+    ],
+    [
+      "Se entiende, pero se nota que no lo escribió un nativo: \"reply you\" suena un poco raro.",
+      "\"reply you\" debería ser \"reply to you\"; \"get back to you\" es más natural.",
+      "He recibido tu correo y te responderé antes del viernes."
+    ],
+    [
+      "Demasiado formal para un amigo. Parece la respuesta a una invitación oficial.",
+      "\"receive your invitation\" y \"attend on time\" son inglés escrito formal y suenan distantes entre amigos.",
+      "¡Suena genial, me apunto! Nos vemos el sábado."
+    ]
+  ]
+}

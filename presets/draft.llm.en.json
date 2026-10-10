@@ -51,7 +51,7 @@
         "lands_as": "A very hard no. It sounds like you're ending the negotiation.",
         "verdict": "too blunt",
         "issues": "\"Impossible\" is too absolute. In business, people usually show understanding first, then say what they can't do.",
-        "rewrite": "I'm afraid we can't go as low as $3.50. Is there any flexibility on your side?",
+        "rewrite": "I'm afraid we can't go that low. Is there any flexibility on your side?",
         "rewrite_zh": "Says no politely and leaves room to keep negotiating."
       }
     },

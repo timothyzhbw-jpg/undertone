@@ -25,6 +25,34 @@ public enum AppLanguage: String, CaseIterable, Sendable, Codable {
     }
 }
 
+/// 解释用的语言：话外音、理由、回复的意思和「发之前看看」的意见用哪种语言写。界面只有中文和英文，
+/// 解释可以多选几种；建议回复和标签始终是英文。presets 里要有 subtext.llm.<代码>.json 和 draft.llm.<代码>.json。
+public enum ExplanationLanguage: String, CaseIterable, Sendable, Codable {
+    case zh, en, es, fr, pt, de, ru, ar, hi, id, ja, ko, vi
+
+    /// 用这种语言自己的写法显示，选的人才认得出。
+    public var name: String {
+        switch self {
+        case .zh: "中文"
+        case .en: "English"
+        case .es: "Español"
+        case .fr: "Français"
+        case .pt: "Português"
+        case .de: "Deutsch"
+        case .ru: "Русский"
+        case .ar: "العربية"
+        case .hi: "हिन्दी"
+        case .id: "Bahasa Indonesia"
+        case .ja: "日本語"
+        case .ko: "한국어"
+        case .vi: "Tiếng Việt"
+        }
+    }
+
+    /// 没单独选过时跟着界面语言。
+    public init(_ language: AppLanguage) { self = language == .zh ? .zh : .en }
+}
+
 /// 按当前语言挑文字。
 public func L(_ zh: String, _ en: String) -> String { AppLanguage.current.pick(zh, en) }
 

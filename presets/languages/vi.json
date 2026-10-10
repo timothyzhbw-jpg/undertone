@@ -1,0 +1,148 @@
+{
+  "name": "Vietnamese",
+  "native": "Tiếng Việt",
+  "subtext": [
+    [
+      "Cảm ơn bạn đã gửi báo giá. Chúng tôi sẽ xem xét nội bộ và phản hồi lại bạn.",
+      "Đây là câu trả lời lịch sự thường gặp sau khi nhận báo giá: không đồng ý cũng không từ chối. Họ không hỏi về số lượng, thời gian giao hàng hay cách thanh toán, nên thường là họ vẫn đang so sánh giá và chỉ quan tâm ở mức vừa phải.",
+      "Họ đã nhận được, đang so sánh bạn với các nhà cung cấp khác và sẽ chưa quyết định sớm.",
+      "Vâng, John. Nếu mẫu thử hoặc một mức đặt hàng tối thiểu khác giúp ích cho việc xem xét, cứ báo tôi nhé. Bên anh dự định quyết định trước ngày nào?",
+      ""
+    ],
+    [
+      "Hmm, giá này hơi cao hơn so với những gì chúng tôi thấy ở các nhà cung cấp khác.",
+      "So sánh với nhà cung cấp khác là cách ép giá rất phổ biến. Có thể họ không thật sự có báo giá rẻ hơn, nhưng giá là điều họ lo nhất lúc này.",
+      "Họ muốn bạn giảm giá, hoặc ít nhất giải thích vì sao giá này hợp lý.",
+      "Tôi hiểu. Anh có thể cho tôi biết mức giá mục tiêu không? Nếu số lượng lớn hơn, chúng tôi có thể linh hoạt một chút.",
+      ""
+    ],
+    [
+      "Cảm ơn! Bạn gửi cho tôi bảng thông số và thời gian giao hàng cho 10.000 chiếc được không? Chúng tôi cần hàng trước cuối tháng 3.",
+      "Chủ động xin bảng thông số, hỏi thời gian giao cho số lượng lớn và đưa ra ngày cần hàng là tín hiệu mua hàng rõ ràng, không phải xã giao.",
+      "Họ đang nghiêm túc tính chuyện đặt hàng và muốn biết bạn có giao kịp trước cuối tháng 3 không.",
+      "Dĩ nhiên rồi, Maria. Tôi sẽ gửi bảng thông số hôm nay và xác nhận với nhà máy thời gian giao 10.000 chiếc trước ngày mai.",
+      "Maria cần 10.000 chiếc, giao trước cuối tháng 3."
+    ],
+    [
+      "Xin lưu ý tài khoản ngân hàng của chúng tôi đã thay đổi do kiểm toán. Vui lòng chuyển số tiền còn lại vào tài khoản mới bên dưới.",
+      "Đột ngột đổi tài khoản ngân hàng với lý do như kiểm toán là kiểu lừa đảo phổ biến nhất trong xuất nhập khẩu: kẻ gian chiếm hoặc giả mạo email của khách hàng hay nhà cung cấp rồi bảo bạn chuyển tiền vào tài khoản của họ.",
+      "Có thể đây không phải người thật. Ai đó đang tìm cách chiếm khoản tiền này.",
+      "Cảm ơn đã báo cho chúng tôi. Trước khi thay đổi gì, tôi sẽ gọi vào số điện thoại quen thuộc của anh để xác nhận.",
+      ""
+    ],
+    [
+      "Chúng tôi đã nhận hàng, nhưng tiếc là khoảng 10% sản phẩm bị hư hỏng. Thật khá thất vọng.",
+      "Trong tiếng Anh thương mại, \"quite disappointing\" đã là cách nói nặng. Họ thật sự không hài lòng và mối quan hệ làm ăn đang bị đe dọa.",
+      "Họ rất không hài lòng với lô hàng này và đang chờ bạn đưa ra cách giải quyết.",
+      "Tôi thật sự xin lỗi, Tom. Anh có thể gửi ảnh các sản phẩm bị hỏng không? Chúng tôi sẽ kiểm tra ngay và gửi phương án giải quyết trước ngày mai.",
+      "Khoảng 10% lô hàng của Tom bị hỏng khi đến; anh ấy rất không hài lòng."
+    ],
+    [
+      "Như email trước tôi đã nói, chúng ở trong thư mục chung.",
+      "Ở công sở, \"Per my last email\" là cách nói lịch sự nổi tiếng của \"tôi đã nói rồi mà\", kèm chút mất kiên nhẫn.",
+      "Tôi đã nói với bạn rồi. Bạn chưa đọc kỹ email của tôi.",
+      "Xin lỗi, tôi bỏ sót. Giờ tìm thấy rồi, cảm ơn Sarah!",
+      ""
+    ],
+    [
+      "Ý tưởng thú vị đấy. Để sau này mình cân nhắc.",
+      "Ở công sở, \"interesting idea\" đi kèm \"keep it in mind for later\" thường là cách từ chối lịch sự, ít nhất là lúc này.",
+      "Bây giờ họ sẽ không làm. Đừng đẩy thêm.",
+      "Được ạ. Nếu sau này cần đến, tôi sẵn sàng viết một đề xuất ngắn.",
+      ""
+    ],
+    [
+      "Chào em, thầy hỏi thăm chút: thầy vẫn chưa nhận được bản nháp của em.",
+      "\"Just checking in\" nghe nhẹ nhàng, nhưng khi giáo sư chủ động nhắn như vậy nghĩa là hạn bạn hứa đã qua và họ muốn nhận bài sớm.",
+      "Bạn đã hứa nộp vào thứ Sáu. Đã đến lúc phải gửi rồi.",
+      "Em chào thầy Lee, em xin lỗi vì đã chậm trễ. Em sẽ gửi bản nháp trước trưa mai ạ.",
+      ""
+    ],
+    [
+      "Được, em ghé giờ tiếp sinh viên của thầy vào thứ Ba lúc 2 giờ nhé.",
+      "Tin nhắn xác nhận thời gian và địa điểm cụ thể. Không có ẩn ý gì, cứ hiểu đúng như chữ.",
+      "Đến văn phòng giáo sư vào 2 giờ chiều thứ Ba.",
+      "Dạ vâng, em cảm ơn thầy! Hẹn gặp thầy 2 giờ thứ Ba ạ.",
+      "Gặp giáo sư trong giờ tiếp sinh viên lúc 2 giờ chiều thứ Ba."
+    ],
+    [
+      "Rất vui được gặp bạn! Hôm nào mình nhất định phải đi cà phê nhé.",
+      "Ở Mỹ, câu \"We should grab coffee sometime\" không kèm ngày giờ thường chỉ là lời xã giao thân thiện, chưa phải hẹn thật. Muốn gặp thật thì bạn nên chủ động đề xuất thời gian.",
+      "Họ có ấn tượng tốt với bạn, nhưng đây chưa phải là lời mời thật.",
+      "Mình cũng rất vui được gặp bạn! Đi chứ. Chiều thứ Năm bạn rảnh không?",
+      ""
+    ],
+    [
+      "Không sao đâu, cứ từ từ!",
+      "Với chuyện nhỏ như trễ 5 phút, \"No worries\" ở công sở Mỹ là thật lòng không sao. Không cần suy diễn thêm.",
+      "Thật sự không sao cả.",
+      "Cảm ơn nhé, mình sắp tới rồi!",
+      ""
+    ],
+    [
+      "Haha bạn tệ nhất luôn 😂 thôi được, mình đi.",
+      "Giữa bạn bè, \"you're the worst\" kèm 😂 là trêu đùa thân mật, không phải chê thật.",
+      "Họ bị bạn thuyết phục và vui vẻ đồng ý đi.",
+      "Haha rồi bạn sẽ cảm ơn mình! Gặp ở đó nhé 🙌",
+      ""
+    ],
+    [
+      "Ồ không sao, giờ mình quen rồi.",
+      "\"No worries\" đi kèm \"I'm used to it by now\" nghĩa là chuyện này xảy ra hoài. Nói \"không sao\" khi lại bị bạn quên là kiểu mỉa mai điển hình.",
+      "Thật ra họ bị tổn thương và cảm thấy bạn lúc nào cũng quên họ.",
+      "Mình thật sự xin lỗi, mình làm vậy là không ổn. Tối nay mình gọi cho bạn được không?",
+      ""
+    ],
+    [
+      "Không phải có ý bất lịch sự đâu, nhưng sau nửa đêm thì ồn quá.",
+      "\"Not to be rude, but\" là câu mở đầu cho một lời phàn nàn. Ý chính nằm ở vế sau: tối qua quá ồn và họ thấy phiền.",
+      "Tiếng ồn tối qua làm phiền họ, và họ muốn lần sau bạn chú ý hơn.",
+      "Xin lỗi nhé! Lần sau bọn mình sẽ nhỏ tiếng hơn và kết thúc sớm hơn.",
+      ""
+    ],
+    [
+      "Thật lòng mà nói, nếu không có mình thì mọi người sẽ tốt hơn.",
+      "Đây không phải kiểu nói quá thường ngày. Họ đang nói mình là gánh nặng và có thể không muốn sống nữa, cần coi trọng chuyện này.",
+      "Họ có thể đang nghĩ đến chuyện tự tử và rất cần có người ở bên.",
+      "Cảm ơn bạn đã nói cho mình biết. Bây giờ bạn có an toàn không? Mình ở đây, và mình muốn nghe chuyện gì đang xảy ra.",
+      ""
+    ]
+  ],
+  "draft": [
+    [
+      "Nghe như ra lệnh. Đối phương có thể thấy như bạn đang đòi nợ, hơi cộc lốc.",
+      "\"Please send me ... today\" đòi thanh toán thẳng thừng, không có lời mềm mỏng và không nêu lý do.",
+      "Anh có thể sắp xếp thanh toán số tiền còn lại trong hôm nay để chúng tôi giao hàng vào thứ Hai như kế hoạch không?"
+    ],
+    [
+      "Xin lỗi quá nhiều. Tin nhắn có vẻ thiếu tự tin, và giáo sư có thể thấy mình phải trấn an bạn.",
+      "Bạn xin lỗi ba lần trong một tin nhắn. Hỏi giáo sư có thời gian không là chuyện bình thường, không cần xin lỗi.",
+      "Em chào thầy Lee, tuần này thầy có thể dành vài phút xem giúp em bài tập không ạ? Em cảm ơn thầy!"
+    ],
+    [
+      "Quá suồng sã với giáo sư. Đọc như tin nhắn gửi bạn bè và có thể bị xem là thiếu tôn trọng.",
+      "\"hey prof\", \"u\", \"tmr\" và \"abt\" dùng với bạn bè thì được, với giáo sư thì không.",
+      "Em chào thầy Lee, ngày mai thầy có thời gian không ạ? Em muốn trao đổi về điểm của em."
+    ],
+    [
+      "Tự nhiên và ngắn gọn. Họ sẽ biết bạn đã nhận và sẽ xử lý.",
+      "Giọng điệu và độ dài đều phù hợp, và \"heads-up\" là cách nói rất tự nhiên ở công sở.",
+      "Cảm ơn đã báo trước, mình sẽ cập nhật lời mời."
+    ],
+    [
+      "Lời từ chối rất cứng. Nghe như bạn đang chấm dứt cuộc đàm phán.",
+      "\"Impossible\" quá tuyệt đối. Trong kinh doanh, người ta thường thể hiện sự thông cảm trước rồi mới nói điều mình không làm được.",
+      "Rất tiếc chúng tôi không thể giảm xuống mức đó. Bên anh có linh hoạt được chút nào không?"
+    ],
+    [
+      "Hiểu được ý, nhưng đọc là biết không phải người bản xứ viết: \"reply you\" nghe hơi lạ.",
+      "\"reply you\" phải là \"reply to you\"; \"get back to you\" thì tự nhiên hơn.",
+      "Tôi đã nhận được email và sẽ phản hồi anh trước thứ Sáu."
+    ],
+    [
+      "Quá trang trọng với bạn bè. Nghe như đang trả lời một thư mời chính thức.",
+      "\"receive your invitation\" và \"attend on time\" là văn viết trang trọng, giữa bạn bè nghe xa cách.",
+      "Hay quá, mình tham gia! Hẹn thứ Bảy nhé."
+    ]
+  ]
+}

@@ -166,9 +166,13 @@ public struct LLMAnalyzer: EmotionAnalyzer {
         return out
     }
 
+    /// 只在原文解析失败时才用：中文弯引号当成了 JSON 引号；值以英文引文开头或结尾时，
+    /// 小模型会把开头或结尾的引号写成 \"（"lands_as": \"look\" は…。", 或 …正しくありません。\", "rewrite": …）。
     static func repairQuotes(_ json: String) -> String {
         json.replacingOccurrences(of: #"([:\[,{]\s*)[“”]"#, with: "$1\"", options: .regularExpression)
             .replacingOccurrences(of: #"[“”](\s*[,}\]:])"#, with: "\"$1", options: .regularExpression)
+            .replacingOccurrences(of: #"("\s*:\s*)\\""#, with: "$1\"\\\\\"", options: .regularExpression)
+            .replacingOccurrences(of: #"\\"(\s*,\s*"[A-Za-z_]+"\s*:|\s*\}\s*$)"#, with: "\"$1", options: .regularExpression)
     }
 
     /// 解析模型输出的 JSON，对类型宽容（"true" / 1 / 0.8 都能当布尔用）。

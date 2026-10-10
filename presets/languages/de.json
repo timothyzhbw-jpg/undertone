@@ -1,0 +1,148 @@
+{
+  "name": "German",
+  "native": "Deutsch",
+  "subtext": [
+    [
+      "Danke für das Angebot. Wir prüfen es intern und melden uns bei Ihnen.",
+      "Das ist die übliche höfliche Antwort nach einem Angebot: weder Ja noch Nein. Sie fragen nicht nach Menge, Lieferzeit oder Zahlung – meist heißt das, dass sie noch Preise vergleichen und nur mäßig interessiert sind.",
+      "Sie haben es bekommen, vergleichen dich mit anderen Lieferanten und entscheiden nicht so bald.",
+      "Gern, John. Wenn Muster oder eine andere Mindestbestellmenge bei Ihrer Prüfung helfen, sagen Sie einfach Bescheid. Bis wann möchten Sie entscheiden?",
+      ""
+    ],
+    [
+      "Hmm, das ist etwas höher als das, was wir bei anderen Lieferanten sehen.",
+      "Der Vergleich mit anderen Lieferanten ist ein üblicher Weg, den Preis zu drücken. Vielleicht haben sie gar kein günstigeres Angebot, aber der Preis ist gerade ihre größte Sorge.",
+      "Sie wollen, dass du den Preis senkst – oder zumindest erklärst, warum er gerechtfertigt ist.",
+      "Verstehe. Können Sie mir sagen, welchen Zielpreis Sie im Kopf haben? Bei einer größeren Menge hätten wir vielleicht etwas Spielraum.",
+      ""
+    ],
+    [
+      "Danke! Können Sie mir das Datenblatt und Ihre Lieferzeit für 10.000 Stück schicken? Wir bräuchten sie bis Ende März.",
+      "Wer nach dem Datenblatt und der Lieferzeit für eine große Menge fragt und dazu einen Liefertermin nennt, zeigt ein klares Kaufsignal – das ist keine bloße Höflichkeit.",
+      "Sie überlegen ernsthaft zu bestellen und wollen wissen, ob du bis Ende März liefern kannst.",
+      "Natürlich, Maria. Ich schicke Ihnen das Datenblatt heute und bestätige die Lieferzeit für 10.000 Stück bis morgen mit unserer Fabrik.",
+      "Maria braucht 10.000 Stück, geliefert bis Ende März."
+    ],
+    [
+      "Bitte beachten Sie, dass sich unser Bankkonto wegen einer Prüfung geändert hat. Bitte überweisen Sie den Restbetrag auf das neue Konto unten.",
+      "Ein plötzlich geändertes Bankkonto mit einer Ausrede wie einer Prüfung ist der häufigste Betrug im Außenhandel: Jemand übernimmt oder fälscht die E-Mail des Kunden oder Lieferanten und lässt dich auf sein eigenes Konto zahlen.",
+      "Das ist vielleicht gar nicht die echte Person. Jemand versucht womöglich, diese Zahlung abzufangen.",
+      "Danke für den Hinweis. Bevor wir etwas ändern, rufe ich Sie unter Ihrer bekannten Nummer an, um die Änderung zu bestätigen.",
+      ""
+    ],
+    [
+      "Wir haben es erhalten, aber leider sind etwa 10 % der Einheiten beschädigt. Das ist ziemlich enttäuschend.",
+      "Im Geschäftsenglisch ist \"quite disappointing\" schon eine deutliche Formulierung. Sie sind wirklich unzufrieden, und die Geschäftsbeziehung steht auf dem Spiel.",
+      "Sie sind mit dieser Lieferung sehr unzufrieden und erwarten, dass du eine Lösung anbietest.",
+      "Das tut mir sehr leid, Tom. Könnten Sie uns Fotos der beschädigten Einheiten schicken? Wir kümmern uns sofort darum und melden uns bis morgen mit einer Lösung.",
+      "Etwa 10 % von Toms Lieferung kamen beschädigt an; er ist sehr unzufrieden."
+    ],
+    [
+      "Wie in meiner letzten E-Mail erwähnt, sind sie im gemeinsamen Ordner.",
+      "Im Job ist \"Per my last email\" eine bekannte höfliche Art zu sagen „Das habe ich dir doch schon gesagt“ – mit etwas Ungeduld.",
+      "Ich hatte es dir schon gesagt. Du hast meine E-Mail nicht richtig gelesen.",
+      "Sorry, das hatte ich übersehen. Jetzt hab ich's gefunden, danke, Sarah!",
+      ""
+    ],
+    [
+      "Das ist eine interessante Idee. Behalten wir sie für später im Hinterkopf.",
+      "Im Job ist \"interesting idea\" zusammen mit \"keep it in mind for later\" meist eine höfliche Absage – zumindest vorerst.",
+      "Das wird jetzt nicht umgesetzt. Besser nicht weiter drängen.",
+      "Klingt gut. Falls es später relevant wird, schreibe ich gern einen kurzen Vorschlag.",
+      ""
+    ],
+    [
+      "Hallo, ich wollte kurz nachfragen: Ich habe deinen Entwurf noch nicht bekommen.",
+      "\"Just checking in\" klingt freundlich, aber wenn sich ein Professor so von selbst meldet, ist der versprochene Termin schon vorbei und er möchte den Entwurf bald haben.",
+      "Du hattest Freitag gesagt. Jetzt solltest du ihn schicken.",
+      "Hallo Professor Lee, entschuldigen Sie die Verspätung. Ich schicke Ihnen den Entwurf bis morgen Mittag.",
+      ""
+    ],
+    [
+      "Passt, komm am Dienstag um 2 in meine Sprechstunde.",
+      "Die Nachricht bestätigt eine konkrete Zeit und einen Ort. Da steckt nichts dahinter, du kannst sie wörtlich nehmen.",
+      "Geh am Dienstag um 14 Uhr ins Büro des Professors.",
+      "Super, vielen Dank! Bis Dienstag um 2.",
+      "Sprechstunde beim Professor am Dienstag um 14 Uhr."
+    ],
+    [
+      "Schön, dich kennengelernt zu haben! Wir sollten unbedingt mal einen Kaffee trinken gehen.",
+      "In den USA ist \"We should grab coffee sometime\" ohne Termin oft nur eine freundliche Floskel, kein echter Plan. Wenn du willst, dass es passiert, schlag selbst einen Termin vor.",
+      "Du hast einen guten Eindruck gemacht, aber das ist noch keine echte Einladung.",
+      "Fand ich auch! Sehr gern. Hast du Donnerstagnachmittag Zeit?",
+      ""
+    ],
+    [
+      "Kein Problem, lass dir Zeit!",
+      "Bei einer Kleinigkeit wie 5 Minuten Verspätung meint man \"No worries\" im US-Arbeitsalltag ehrlich: Es ist wirklich in Ordnung. Da musst du nichts hineinlesen.",
+      "Es ist wirklich kein Problem.",
+      "Danke, bin gleich da!",
+      ""
+    ],
+    [
+      "LOL du bist echt das Letzte 😂 na gut, ich komme.",
+      "Unter Freunden ist \"you're the worst\" mit 😂 eine liebevolle Neckerei, keine echte Beleidigung.",
+      "Du hast die Person überredet, und sie kommt gern mit.",
+      "Haha, du wirst mir noch danken! Bis dann 🙌",
+      ""
+    ],
+    [
+      "Ach, kein Problem, ich bin's inzwischen gewohnt.",
+      "\"No worries\" gefolgt von \"I'm used to it by now\" heißt: Das passiert ständig. „Kein Problem“ zu sagen, nachdem du die Person schon wieder vergessen hast, ist typischer Sarkasmus.",
+      "Eigentlich ist die Person verletzt und hat das Gefühl, dass du sie immer vergisst.",
+      "Es tut mir wirklich leid, das war nicht okay von mir. Kann ich dich heute Abend anrufen?",
+      ""
+    ],
+    [
+      "Ich will ja nicht unhöflich sein, aber nach Mitternacht war es ziemlich laut.",
+      "\"Not to be rude, but\" kündigt eine Beschwerde an. Wichtig ist der zweite Teil: Gestern Abend war es zu laut, und das hat gestört.",
+      "Der Lärm gestern hat die Person gestört, und sie wünscht sich, dass ihr beim nächsten Mal mehr Rücksicht nehmt.",
+      "Sorry! Nächstes Mal sind wir leiser und hören früher auf.",
+      ""
+    ],
+    [
+      "Ehrlich gesagt wären alle besser dran, wenn ich nicht da wäre.",
+      "Das ist keine alltägliche Übertreibung. Die Person sagt, dass sie sich als Last fühlt und vielleicht nicht mehr leben will – nimm das ernst.",
+      "Die Person denkt vielleicht an Suizid und braucht dringend jemanden an ihrer Seite.",
+      "Ich bin wirklich froh, dass du es mir erzählst. Bist du gerade in Sicherheit? Ich bin da und will hören, was los ist.",
+      ""
+    ]
+  ],
+  "draft": [
+    [
+      "Klingt wie ein Befehl. Es kann so wirken, als würdest du eine Schuld eintreiben – etwas schroff.",
+      "\"Please send me ... today\" fordert die Zahlung direkt, ohne Abschwächung und ohne Grund.",
+      "Könnten Sie die Restzahlung bitte heute veranlassen, damit wir wie geplant am Montag versenden können?"
+    ],
+    [
+      "Zu viele Entschuldigungen. Die Nachricht wirkt unsicher, und der Professor fühlt sich vielleicht verpflichtet, dich zu beruhigen.",
+      "Du entschuldigst dich dreimal in einer Nachricht. Einen Professor zu fragen, ob er Zeit hat, ist normal und braucht keine Entschuldigung.",
+      "Hallo Professor Lee, hätten Sie diese Woche ein paar Minuten Zeit, sich meine Hausaufgabe anzusehen? Vielen Dank!"
+    ],
+    [
+      "Viel zu locker für einen Professor. Es liest sich wie eine Nachricht an einen Freund und kann respektlos wirken.",
+      "\"hey prof\", \"u\", \"tmr\" und \"abt\" gehen unter Freunden, aber nicht bei einem Professor.",
+      "Hallo Professor Lee, haben Sie morgen Zeit? Ich würde gern über meine Note sprechen."
+    ],
+    [
+      "Natürlich und kurz. Sie wissen dann, dass du es bekommen hast und dich darum kümmerst.",
+      "Ton und Länge passen, und \"heads-up\" ist im Job ein sehr natürlicher Ausdruck.",
+      "Danke für den Hinweis, ich passe die Einladung an."
+    ],
+    [
+      "Ein sehr hartes Nein. Es klingt, als würdest du die Verhandlung beenden.",
+      "\"Impossible\" ist zu absolut. Im Geschäftsleben zeigt man zuerst Verständnis und sagt dann, was nicht geht.",
+      "Leider können wir nicht so weit heruntergehen. Gibt es auf Ihrer Seite etwas Spielraum?"
+    ],
+    [
+      "Verständlich, aber man merkt, dass es kein Muttersprachler geschrieben hat: \"reply you\" klingt etwas schief.",
+      "\"reply you\" müsste \"reply to you\" heißen; \"get back to you\" ist natürlicher.",
+      "Ich habe Ihre E-Mail erhalten und melde mich bis Freitag bei Ihnen."
+    ],
+    [
+      "Zu förmlich für einen Freund. Es klingt wie die Antwort auf eine offizielle Einladung.",
+      "\"receive your invitation\" und \"attend on time\" sind förmliches Schriftenglisch und wirken unter Freunden distanziert.",
+      "Klingt super, ich bin dabei! Bis Samstag."
+    ]
+  ]
+}

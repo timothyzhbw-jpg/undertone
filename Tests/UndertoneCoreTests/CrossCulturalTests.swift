@@ -8,7 +8,37 @@ final class CrossCulturalTests: XCTestCase {
     func testSubtextPresetMatchesSchemaAndVocabulary() throws {
         // 中文版直接输出中文规范值；英文版输出英文标签，解析时换回规范值
         try checkSubtextPreset("subtext.llm.zh.json", label: \.zh)
-        try checkSubtextPreset("subtext.llm.en.json", label: \.en)
+        for language in ExplanationLanguage.allCases where language != .zh {
+            try checkSubtextPreset("subtext.llm.\(language.rawValue).json", label: \.en)
+        }
+    }
+
+    /// 其他解释语言由 scripts/make_language_presets.py 从英文版生成：示例的聊天、标签和建议回复必须和英文版一样，
+    /// 只有解释换了语言。改了英文版忘了重新生成时，这里会报出来。
+    func testEveryExplanationLanguageMatchesEnglish() throws {
+        let english = try LLMPrompt.load(from: presets.appending(path: "subtext.llm.en.json"))
+        let englishDraft = try LLMPrompt.load(from: presets.appending(path: "draft.llm.en.json"))
+        for language in ExplanationLanguage.allCases {
+            let code = language.rawValue
+            XCTAssertEqual(Presets.file("subtext.llm", language, in: presets), "subtext.llm.\(code).json")
+            XCTAssertEqual(Presets.file("draft.llm", language, in: presets), "draft.llm.\(code).json")
+            guard language != .zh, language != .en else { continue }
+            let prompt = try LLMPrompt.load(from: presets.appending(path: "subtext.llm.\(code).json"))
+            XCTAssertEqual(prompt.examples.map(\.chat), english.examples.map(\.chat), code)
+            for (example, original) in zip(prompt.examples, english.examples) {
+                for key in ["reading", "emotion", "target", "best_response", "suggested_reply", "confidence", "asks_money", "self_harm"] {
+                    XCTAssertEqual(example.answer[key], original.answer[key], "\(code) \(key)")
+                }
+                XCTAssertNotEqual(example.answer["why"], original.answer["why"], "\(code) 的解释还是英文")
+            }
+            XCTAssertTrue(prompt.system.contains("The user's first language is"), code)
+            let draft = try LLMPrompt.load(from: presets.appending(path: "draft.llm.\(code).json"))
+            XCTAssertEqual(draft.examples.map(\.chat), englishDraft.examples.map(\.chat), code)
+            for (example, original) in zip(draft.examples, englishDraft.examples) {
+                XCTAssertEqual(example.answer["verdict"], original.answer["verdict"], code)
+                XCTAssertEqual(example.answer["rewrite"], original.answer["rewrite"], code)
+            }
+        }
     }
 
     private func checkSubtextPreset(_ file: String, label: KeyPath<Term, String>) throws {
@@ -46,15 +76,17 @@ final class CrossCulturalTests: XCTestCase {
 
     /// 英文界面用英文解释；没有英文版的提示词（微调模型的）用中文版。
     func testPresetFollowsLanguage() {
-        XCTAssertEqual(Presets.file("subtext.llm", language: .zh, in: presets), "subtext.llm.zh.json")
-        XCTAssertEqual(Presets.file("subtext.llm", language: .en, in: presets), "subtext.llm.en.json")
-        XCTAssertEqual(Presets.file("draft.llm", language: .en, in: presets), "draft.llm.en.json")
-        XCTAssertEqual(Presets.file("subtext.ft", language: .en, in: presets), "subtext.ft.zh.json")
+        XCTAssertEqual(Presets.file("subtext.llm", .zh, in: presets), "subtext.llm.zh.json")
+        XCTAssertEqual(Presets.file("subtext.llm", .en, in: presets), "subtext.llm.en.json")
+        XCTAssertEqual(Presets.file("draft.llm", .en, in: presets), "draft.llm.en.json")
+        XCTAssertEqual(Presets.file("subtext.ft", .en, in: presets), "subtext.ft.zh.json")
+        XCTAssertEqual(ExplanationLanguage(.zh), .zh)
+        XCTAssertEqual(ExplanationLanguage(.en), .en)
     }
 
     /// few-shot 示例的格式必须和真实分析时一模一样，否则小模型会学歪。
     func testExampleChatsMatchLiveFormat() throws {
-        for file in ["subtext.llm.zh.json", "subtext.llm.en.json"] {
+        for file in ExplanationLanguage.allCases.map({ "subtext.llm.\($0.rawValue).json" }) {
             let prompt = try LLMPrompt.load(from: presets.appending(path: file))
             let first = try XCTUnwrap(prompt.examples.first)
             let rendered = ChatState.render(
@@ -163,7 +195,9 @@ final class DraftCheckerTests: XCTestCase {
 
     func testDraftPresetMatchesSchemaAndLiveFormat() throws {
         try checkDraftPreset("draft.llm.zh.json", label: \.zh)
-        try checkDraftPreset("draft.llm.en.json", label: \.en)
+        for language in ExplanationLanguage.allCases where language != .zh {
+            try checkDraftPreset("draft.llm.\(language.rawValue).json", label: \.en)
+        }
     }
 
     private func checkDraftPreset(_ file: String, label: KeyPath<Term, String>) throws {

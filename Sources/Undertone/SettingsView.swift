@@ -34,9 +34,15 @@ struct SettingsView: View {
                         ForEach(AppLanguage.allCases, id: \.self) { Text($0.name).tag($0) }
                     }
                     .pickerStyle(.segmented)
+                    // 解释语言选回和界面一样时，恢复成「跟着界面」
+                    Picker(L("解释用的语言", "Explain in"), selection: Binding(
+                        get: { settings.explanation },
+                        set: { settings.explanationChoice = $0 == ExplanationLanguage(settings.language) ? nil : $0 })) {
+                        ForEach(ExplanationLanguage.allCases, id: \.self) { Text($0.name).tag($0) }
+                    }
                 } footer: {
-                    Text(L("界面和解释的语言：选 English 时，话外音、理由和「发之前看看」的意见都用简单的英文写。关键词安全网和求助热线也跟着换。",
-                           "The language of the interface and the explanations: with English, the subtext, the reasons and the draft feedback are all in plain English. The keyword safety nets and crisis resources switch too."))
+                    Text(L("界面只有中文和英文；话外音、理由和「发之前看看」的意见可以用别的语言写，建议的英文回复不变。关键词安全网和求助热线跟着界面语言。",
+                           "The interface is in Chinese or English; the subtext, the reasons and the draft feedback can be in another language. Suggested replies stay in English. The keyword safety nets and crisis resources follow the interface language."))
                         .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
 

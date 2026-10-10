@@ -1,0 +1,148 @@
+{
+  "name": "French",
+  "native": "français",
+  "subtext": [
+    [
+      "Merci pour le devis. Nous allons l'examiner en interne et nous reviendrons vers vous.",
+      "C'est la réponse polie habituelle après un devis : ni oui ni non. Ils ne posent aucune question sur la quantité, le délai ou le paiement, ce qui veut souvent dire qu'ils comparent encore les prix et que leur intérêt est modéré.",
+      "Ils l'ont bien reçu, ils vous comparent à d'autres fournisseurs et ne décideront pas tout de suite.",
+      "Très bien, John. Si des échantillons ou une autre quantité minimale peuvent vous aider, dites-le-moi. Vous comptez décider pour quand ?",
+      ""
+    ],
+    [
+      "Hmm, c'est un peu plus cher que ce que nous voyons chez d'autres fournisseurs.",
+      "Vous comparer à d'autres fournisseurs est une façon courante de faire baisser le prix. Ils n'ont peut-être pas d'offre moins chère, mais le prix est leur principale préoccupation.",
+      "Ils veulent que vous baissiez le prix, ou au moins que vous expliquiez pourquoi il est justifié.",
+      "Je comprends. Pourriez-vous me dire quel prix cible vous avez en tête ? Pour un volume plus important, nous aurions peut-être une marge.",
+      ""
+    ],
+    [
+      "Merci ! Pouvez-vous m'envoyer la fiche technique et votre délai pour 10 000 pièces ? Il nous les faudrait d'ici fin mars.",
+      "Demander la fiche technique et le délai pour une grosse quantité, avec une date de livraison, est un vrai signal d'achat, pas une simple politesse.",
+      "Ils envisagent sérieusement de commander et veulent savoir si vous pouvez livrer avant fin mars.",
+      "Bien sûr, Maria. Je vous envoie la fiche technique aujourd'hui et je confirme avec l'usine le délai pour 10 000 pièces d'ici demain.",
+      "Maria a besoin de 10 000 pièces livrées avant fin mars."
+    ],
+    [
+      "Veuillez noter que notre compte bancaire a changé suite à un audit. Merci de verser le solde sur le nouveau compte ci-dessous.",
+      "Un changement soudain de compte bancaire, avec une excuse comme un audit, est l'arnaque la plus courante dans le commerce international : quelqu'un pirate ou imite l'e-mail du client ou du fournisseur et vous demande de payer sur son compte.",
+      "Ce n'est peut-être pas la vraie personne. Quelqu'un essaie peut-être de détourner ce paiement.",
+      "Merci de nous prévenir. Avant de modifier quoi que ce soit, je vous appellerai à votre numéro habituel pour confirmer le changement.",
+      ""
+    ],
+    [
+      "Nous l'avons reçu, mais malheureusement environ 10 % des unités sont endommagées. C'est assez décevant.",
+      "En anglais des affaires, \"quite disappointing\" est déjà une expression forte. Ils sont vraiment mécontents et la relation est en jeu.",
+      "Ils sont très mécontents de cette livraison et attendent que vous proposiez une solution.",
+      "Toutes mes excuses, Tom. Pourriez-vous nous envoyer des photos des unités endommagées ? Nous regardons cela tout de suite et revenons vers vous avec une solution d'ici demain.",
+      "Environ 10 % de la livraison de Tom est arrivée endommagée ; il est très mécontent."
+    ],
+    [
+      "Comme indiqué dans mon dernier e-mail, ils sont dans le dossier partagé.",
+      "Au travail, \"Per my last email\" est une façon polie bien connue de dire « je vous l'ai déjà dit », avec un peu d'impatience.",
+      "Je vous l'avais déjà dit. Vous n'avez pas bien lu mon e-mail.",
+      "Pardon, je l'avais raté. Je l'ai trouvé, merci Sarah !",
+      ""
+    ],
+    [
+      "C'est une idée intéressante. Gardons-la en tête pour plus tard.",
+      "Au travail, \"interesting idea\" suivi de \"keep it in mind for later\" est souvent une façon polie de dire non, pour l'instant.",
+      "Ils ne le feront pas maintenant. Inutile d'insister.",
+      "Très bien. Si cela devient utile, je peux rédiger une courte proposition.",
+      ""
+    ],
+    [
+      "Bonjour, je me permets de relancer : je n'ai pas encore reçu votre brouillon.",
+      "\"Just checking in\" a l'air aimable, mais quand un professeur écrit en premier comme ça, la date que vous aviez promise est passée et il veut le brouillon rapidement.",
+      "Vous aviez dit vendredi. Il est temps de l'envoyer.",
+      "Bonjour Professeur Lee, toutes mes excuses pour le retard. Je vous envoie le brouillon demain avant midi.",
+      ""
+    ],
+    [
+      "D'accord, passez à ma permanence mardi à 14 h.",
+      "Le message confirme une heure et un lieu précis. Il n'y a rien de caché, on peut le prendre au pied de la lettre.",
+      "Allez au bureau du professeur mardi à 14 h.",
+      "Parfait, merci ! À mardi, 14 h.",
+      "Permanence avec le professeur mardi à 14 h."
+    ],
+    [
+      "C'était super de te rencontrer ! On devrait vraiment prendre un café un de ces jours.",
+      "Aux États-Unis, \"We should grab coffee sometime\" sans date est souvent juste une phrase sympathique, pas un vrai projet. Si vous voulez que ça se fasse, proposez vous-même un moment.",
+      "Vous avez fait bonne impression, mais ce n'est pas encore une vraie invitation.",
+      "Moi aussi ! Avec plaisir. Tu es libre jeudi après-midi ?",
+      ""
+    ],
+    [
+      "Pas de souci, prends ton temps !",
+      "Pour une petite chose comme 5 minutes de retard, \"No worries\" au travail aux États-Unis veut vraiment dire que ce n'est pas grave. Inutile d'y voir autre chose.",
+      "Ce n'est vraiment pas grave.",
+      "Merci, j'arrive tout de suite !",
+      ""
+    ],
+    [
+      "MDR t'es le pire 😂 bon d'accord, je viens.",
+      "Entre amis, \"you're the worst\" avec 😂 est une taquinerie affectueuse, pas une vraie insulte.",
+      "Vous avez réussi à convaincre cette personne, qui viendra avec plaisir.",
+      "Haha, tu me remercieras ! À tout à l'heure 🙌",
+      ""
+    ],
+    [
+      "Oh, pas de souci, j'ai l'habitude maintenant.",
+      "\"No worries\" suivi de \"I'm used to it by now\" signifie que ça arrive souvent. Dire « pas de souci » quand vous l'avez encore oublié, c'est du sarcasme classique.",
+      "En réalité, cette personne est blessée et a l'impression que vous l'oubliez tout le temps.",
+      "Pardon, vraiment, ce n'était pas correct de ma part. Je peux t'appeler ce soir ?",
+      ""
+    ],
+    [
+      "Sans vouloir vous vexer, c'était assez bruyant après minuit.",
+      "\"Not to be rude, but\" annonce une plainte. L'essentiel est dans la deuxième partie : il y avait trop de bruit hier soir, et ça a dérangé.",
+      "Le bruit d'hier soir a gêné cette personne, qui voudrait que vous fassiez attention la prochaine fois.",
+      "Pardon ! La prochaine fois, on fera moins de bruit et on finira plus tôt.",
+      ""
+    ],
+    [
+      "Honnêtement, tout le monde serait mieux si je n'étais pas là.",
+      "Ce n'est pas une exagération de tous les jours. Cette personne dit qu'elle se sent comme un fardeau et qu'elle ne veut peut-être plus vivre : il faut le prendre au sérieux.",
+      "Cette personne pense peut-être au suicide et a vraiment besoin de quelqu'un à ses côtés.",
+      "Merci de m'en parler, vraiment. Est-ce que tu es en sécurité en ce moment ? Je suis là, et je veux savoir ce qui se passe.",
+      ""
+    ]
+  ],
+  "draft": [
+    [
+      "Ça sonne comme un ordre. On peut avoir l'impression que vous réclamez une dette, un peu sèchement.",
+      "\"Please send me ... today\" demande le paiement directement, sans adoucir et sans donner de raison.",
+      "Pourriez-vous organiser le paiement du solde aujourd'hui, pour que nous puissions expédier lundi comme prévu ?"
+    ],
+    [
+      "Trop d'excuses. Le message manque d'assurance, et le professeur risque de se sentir obligé de vous rassurer.",
+      "Vous vous excusez trois fois dans un seul message. Demander à un professeur s'il a du temps est normal et ne demande pas d'excuses.",
+      "Bonjour Professeur Lee, auriez-vous quelques minutes cette semaine pour relire mon devoir ? Merci !"
+    ],
+    [
+      "Beaucoup trop familier pour un professeur. On dirait un message à un ami, et ça peut paraître irrespectueux.",
+      "\"hey prof\", \"u\", \"tmr\" et \"abt\" passent entre amis, pas avec un professeur.",
+      "Bonjour Professeur Lee, êtes-vous disponible demain ? J'aimerais parler de ma note."
+    ],
+    [
+      "Naturel et court. Ils comprendront que vous avez bien reçu et que vous allez vous en occuper.",
+      "Le ton et la longueur sont bons, et \"heads-up\" est une expression très naturelle au travail.",
+      "Merci pour l'info, je mets l'invitation à jour."
+    ],
+    [
+      "Un refus très sec. On dirait que vous fermez la négociation.",
+      "\"Impossible\" est trop catégorique. En affaires, on montre d'abord qu'on comprend, puis on dit ce qu'on ne peut pas faire.",
+      "Je crains que nous ne puissions pas descendre aussi bas. Avez-vous une marge de manœuvre de votre côté ?"
+    ],
+    [
+      "On comprend, mais on sent que ce n'est pas écrit par un natif : \"reply you\" sonne un peu bizarre.",
+      "\"reply you\" devrait être \"reply to you\" ; \"get back to you\" est plus naturel.",
+      "J'ai bien reçu votre e-mail et je vous répondrai avant vendredi."
+    ],
+    [
+      "Trop formel pour un ami. On dirait la réponse à une invitation officielle.",
+      "\"receive your invitation\" et \"attend on time\" sont de l'anglais écrit formel et paraissent distants entre amis.",
+      "Super, je viens ! À samedi."
+    ]
+  ]
+}

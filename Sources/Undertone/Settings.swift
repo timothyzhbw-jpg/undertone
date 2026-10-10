@@ -30,6 +30,11 @@ final class AppSettings: ObservableObject {
             AppLanguage.current = language
         }
     }
+    /// 解释用的语言；nil 表示跟着界面语言。
+    @Published var explanationChoice: ExplanationLanguage? {
+        didSet { defaults.set(explanationChoice?.rawValue, forKey: "explanationLanguage") }
+    }
+    var explanation: ExplanationLanguage { explanationChoice ?? ExplanationLanguage(language) }
     @Published var ollamaURL: String { didSet { defaults.set(ollamaURL, forKey: "ollamaURL") } }
     @Published var ollamaModel: String { didSet { defaults.set(ollamaModel, forKey: "ollamaModel") } }
     @Published var llmProvider: LLMProvider { didSet { defaults.set(llmProvider.rawValue, forKey: "llmProvider") } }
@@ -64,6 +69,7 @@ final class AppSettings: ObservableObject {
         let language = Self.launchLanguage ?? AppLanguage(rawValue: UserDefaults.standard.string(forKey: "language") ?? "") ?? .system
         self.language = language
         AppLanguage.current = language
+        explanationChoice = ExplanationLanguage(rawValue: defaults.string(forKey: "explanationLanguage") ?? "")
         ollamaURL = defaults.string(forKey: "ollamaURL") ?? "http://127.0.0.1:11434"
         ollamaModel = defaults.string(forKey: "ollamaModel") ?? "qwen3.5:4b"
         llmProvider = LLMProvider(rawValue: defaults.string(forKey: "llmProvider") ?? "") ?? .ollama
@@ -121,6 +127,7 @@ final class AppSettings: ObservableObject {
     /// 当前设置对应的分析器配置。
     func analyzerConfig() throws -> AnalyzerConfig {
         var config = AnalyzerConfig()
+        config.explanation = explanation
         switch llmProvider {
         case .ollama:
             config.llm = .ollama(baseURL: try url(ollamaURL), model: ollamaModel)

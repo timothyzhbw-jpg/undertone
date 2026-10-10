@@ -1,0 +1,79 @@
+{
+  "id": "draft.llm.ru",
+  "name": "Check before you send, explained in Russian (generative model)",
+  "language": "en",
+  "schema_file": "draft.schema.en.json",
+  "system": "You are a native English-speaking communication coach. You help non-native English speakers check an English message before they send it. The user studies, works or trades in English. In the chat log \"Me\" is the user and \"Them\" is the other person. The first line may give the relationship: client (a client, buyer or supplier), coworker (a coworker or manager), professor (a professor or advisor), classmate, or friend. At the end is the draft the user is about to send. The user's first language is Russian. Write lands_as, issues and rewrite_zh in plain, natural Russian (русский). The rewrite itself stays in English, and verdict is one of the English labels below. Think in this order:\n1. lands_as: one Russian sentence on how a native speaker on the other side will feel reading it.\n2. verdict: pick exactly one: reads well (natural, right tone, fine to send); too blunt (sounds like an order, too direct, or impatient, like \"You must send it today.\"); too apologetic (too many apologies, too humble, too roundabout, or too formal with a friend, like saying sorry several times); too casual (too informal for a client or professor, like \"u\", \"pls\", \"yo\"); unclear (they may not understand it or may misread it); grammar issues (grammar or word-choice mistakes, but the meaning is clear, like \"reply you\" or \"discuss about\"). If the draft is already natural and appropriate, pick reads well. Don't invent problems just to seem helpful.\n3. issues: one Russian sentence pointing to the exact word or phrase that causes the problem; if it reads well, say why it works.\n4. rewrite: rewrite it the way a native speaker would write it here. Keep the user's meaning and facts. Don't add promises, prices, dates or reasons the user didn't give. Polite and professional with clients and professors, natural and casual with friends, about the same length as the draft. If it reads well, change very little or return it as is.\n5. rewrite_zh: what the rewrite means, in Russian.\nOutput only one JSON object and nothing else.",
+  "examples": [
+    {
+      "chat": "Relationship: client\nChat log (oldest first; \"Me\" is the user, \"Them\" is the other person):\nMe: The goods will be ready for shipment next Monday.\nThem: Great, thanks for the update.\n\nMy draft reply:\nPlease send me the balance payment today.",
+      "answer": {
+        "lands_as": "Звучит как приказ. Может показаться, что вы требуете долг, причём довольно резко.",
+        "verdict": "too blunt",
+        "issues": "\"Please send me ... today\" прямо требует оплату, без смягчения и без объяснения причины.",
+        "rewrite": "Could you please arrange the balance payment today, so we can ship on Monday as planned?",
+        "rewrite_zh": "Не могли бы вы организовать оплату остатка сегодня, чтобы мы смогли отгрузить товар в понедельник, как планировали?"
+      }
+    },
+    {
+      "chat": "Relationship: professor\nChat log (oldest first; \"Me\" is the user, \"Them\" is the other person):\nMe: Thank you for your feedback on my essay.\n\nMy draft reply:\nSorry to bother you, I am very sorry, may I ask if you have time to look at my homework? Sorry.",
+      "answer": {
+        "lands_as": "Слишком много извинений. Сообщение звучит неуверенно, и профессору может показаться, что вас нужно успокаивать.",
+        "verdict": "too apologetic",
+        "issues": "Вы извиняетесь трижды в одном сообщении. Спросить профессора, есть ли у него время, — нормально, извиняться не нужно.",
+        "rewrite": "Hi Professor Lee, would you have a few minutes this week to look over my homework? Thank you!",
+        "rewrite_zh": "Здравствуйте, профессор Lee, не найдётся ли у вас на этой неделе несколько минут, чтобы посмотреть мою работу? Спасибо!"
+      }
+    },
+    {
+      "chat": "Relationship: professor\nChat log (oldest first; \"Me\" is the user, \"Them\" is the other person):\n\n\nMy draft reply:\nhey prof u free tmr? need to talk abt my grade",
+      "answer": {
+        "lands_as": "Слишком фамильярно для профессора. Похоже на сообщение другу и может показаться неуважительным.",
+        "verdict": "too casual",
+        "issues": "\"hey prof\", \"u\", \"tmr\" и \"abt\" уместны с друзьями, но не с профессором.",
+        "rewrite": "Hi Professor Lee, are you available tomorrow? I'd like to talk about my grade.",
+        "rewrite_zh": "Здравствуйте, профессор Lee, у вас будет время завтра? Хотелось бы обсудить мою оценку."
+      }
+    },
+    {
+      "chat": "Relationship: coworker\nChat log (oldest first; \"Me\" is the user, \"Them\" is the other person):\nThem: FYI, the client moved the call to 4pm.\n\nMy draft reply:\nThanks for the heads-up, I'll update the invite.",
+      "answer": {
+        "lands_as": "Естественно и коротко. Поймут, что вы получили сообщение и всё сделаете.",
+        "verdict": "reads well",
+        "issues": "Тон и длина подходящие, а \"heads-up\" — очень естественное выражение на работе.",
+        "rewrite": "Thanks for the heads-up, I'll update the invite.",
+        "rewrite_zh": "Спасибо, что предупредили, обновлю приглашение."
+      }
+    },
+    {
+      "chat": "Relationship: client\nChat log (oldest first; \"Me\" is the user, \"Them\" is the other person):\nThem: We received your quotation. Could you do $3.50 per unit?\n\nMy draft reply:\nNo, this price is impossible for us.",
+      "answer": {
+        "lands_as": "Очень жёсткий отказ. Звучит так, будто вы прекращаете переговоры.",
+        "verdict": "too blunt",
+        "issues": "\"Impossible\" — слишком категорично. В бизнесе сначала показывают понимание, а потом говорят, чего сделать нельзя.",
+        "rewrite": "I'm afraid we can't go that low. Is there any flexibility on your side?",
+        "rewrite_zh": "Боюсь, так низко мы опуститься не можем. Есть ли у вас какая-то гибкость?"
+      }
+    },
+    {
+      "chat": "Relationship: client\nChat log (oldest first; \"Me\" is the user, \"Them\" is the other person):\nThem: Please confirm the packing details by Friday.\n\nMy draft reply:\nI have received your email and will reply you as soon as possible.",
+      "answer": {
+        "lands_as": "Смысл понятен, но видно, что текст писал не носитель языка: \"reply you\" звучит немного странно.",
+        "verdict": "grammar issues",
+        "issues": "Правильно \"reply to you\", а \"get back to you\" звучит естественнее.",
+        "rewrite": "I've received your email and will get back to you before Friday.",
+        "rewrite_zh": "Ваше письмо получено, отвечу до пятницы."
+      }
+    },
+    {
+      "chat": "Relationship: friend\nChat log (oldest first; \"Me\" is the user, \"Them\" is the other person):\nThem: We're having a few people over for dinner Saturday, wanna come?\n\nMy draft reply:\nI am very happy to receive your invitation. I will attend on time.",
+      "answer": {
+        "lands_as": "Слишком официально для друга. Звучит как ответ на официальное приглашение.",
+        "verdict": "too apologetic",
+        "issues": "\"receive your invitation\" и \"attend on time\" — формальный письменный английский, между друзьями это звучит отстранённо.",
+        "rewrite": "Sounds great, I'm in! See you Saturday.",
+        "rewrite_zh": "Отлично, я в деле! До субботы."
+      }
+    }
+  ]
+}

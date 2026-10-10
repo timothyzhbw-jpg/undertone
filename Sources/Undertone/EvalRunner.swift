@@ -6,13 +6,15 @@ import Foundation
 /// 输入每行：{"text": "对方说的英文", "relationship": "client", "context": "Me: …\nThem: …"}（后两项可选）
 ///
 /// 默认用本地大模型。环境变量：
-///   UNDERTONE_LLM_PRESET=subtext.ft.zh.json、UNDERTONE_OPENAI_URL=http://127.0.0.1:8080/v1（评测 train/ 里微调的模型）
+///   UNDERTONE_EXPLAIN=es（解释用的语言，默认跟界面语言）、UNDERTONE_LLM_PRESET=subtext.ft.zh.json、UNDERTONE_OPENAI_URL=http://127.0.0.1:8080/v1（评测 train/ 里微调的模型）
 ///   UNDERTONE_OLLAMA_MODEL=undertone-subtext（导入 Ollama 的微调模型，配 UNDERTONE_LLM_PRESET=subtext.ft.zh.json）
 /// 每行写 "draft" 而不是 "text" 时，测的是「发之前看看」（评测集 eval/draft.jsonl）。
 enum EvalRunner {
     static func config(_ env: [String: String] = ProcessInfo.processInfo.environment) -> AnalyzerConfig {
         var config = AnalyzerConfig()
         if let preset = env["UNDERTONE_LLM_PRESET"], !preset.isEmpty { config.llmPreset = preset }
+        // 解释用的语言（默认跟 --language）：UNDERTONE_EXPLAIN=es
+        if let code = env["UNDERTONE_EXPLAIN"], let language = ExplanationLanguage(rawValue: code) { config.explanation = language }
         // 换一个本机 Ollama 模型（例如导入的微调模型 undertone-subtext）
         if let model = env["UNDERTONE_OLLAMA_MODEL"], !model.isEmpty {
             config.llm = .ollama(baseURL: URL(string: "http://127.0.0.1:11434")!, model: model)

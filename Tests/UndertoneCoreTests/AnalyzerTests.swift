@@ -41,6 +41,18 @@ final class AnalyzerTests: XCTestCase {
         XCTAssertEqual(r.suggestedReply, "我们聊聊“信任”这件事吧", "字符串内部的中文引号要保留")
     }
 
+    /// 值以英文引文开头或结尾时，小模型会把开头或结尾的引号写成 \"（日文解释里实际出现过）。
+    func testStrayEscapedQuoteAtValueBoundaryIsRepaired() throws {
+        let broken = #"{"lands_as": \"look\" が二回使われています。", "verdict": "grammar issues", "issues": "\"look look\" は正しくありません。\", "rewrite": "Can you take a look?"}"#
+        let object = try XCTUnwrap(LLMAnalyzer.parseObject(broken))
+        XCTAssertEqual(object["lands_as"] as? String, #""look" が二回使われています。"#)
+        XCTAssertEqual(object["issues"] as? String, #""look look" は正しくありません。"#)
+        XCTAssertEqual(object["rewrite"] as? String, "Can you take a look?")
+        // 本来合法、只是字符串里有 \", 的 JSON 不受影响
+        let fine = #"{"a": "say \"hi\", then go", "b": "x"}"#
+        XCTAssertEqual(LLMAnalyzer.parseObject(fine)?["a"] as? String, #"say "hi", then go"#)
+    }
+
     func testExamplesAreEncodedInPromptOrder() throws {
         let text = try LLMAnalyzer.encodeInOrder([
             "suggested_reply": .string("好"), "emotion": .string("开心"), "literal": .string("嗯"), "intensity": .number(1),

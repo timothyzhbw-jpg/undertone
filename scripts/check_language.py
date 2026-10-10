@@ -37,7 +37,10 @@ def language_of(text):
         return "zh"
     if sum(ch in VIETNAMESE for ch in text.lower()) >= 2:
         return "vi"
-    words = re.findall(r"[a-zà-ÿ]+", text.lower())
+    # 引用的英文原话（"discuss about"、'reply you'）不算：解释本身用什么语言才算
+    # 单引号要前后不贴着字母才算引号，免得把法文的 l'idée、qu'il 当成引文
+    unquoted = re.sub(r"\"[^\"]*\"|(?<!\w)'[^']*'(?!\w)|“[^”]*”|«[^»]*»", " ", text)
+    words = re.findall(r"[a-zà-ÿ]+", unquoted.lower())
     counts = {lang: sum(w in set(sw.split()) for w in words) for lang, sw in STOPWORDS.items()}
     return max(counts, key=counts.get) if any(counts.values()) else "?"
 

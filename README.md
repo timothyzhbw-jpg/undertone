@@ -96,7 +96,7 @@ The English prompt is a translation of the Chinese one, made after the fresh set
 The other explanation languages are built from the English prompt by [`scripts/make_language_presets.py`](scripts/make_language_presets.py). The rules stay in English, which the 4B model follows best, and the worked examples (15 for reading, 7 for drafts) carry their explanations in the target language ([`presets/languages/`](presets/languages)). Suggested replies and labels are the same in every language. Each language was run once on the fresh held-out set and the draft set through the same code path, and [`scripts/check_language.py`](scripts/check_language.py) checked that the explanations really came out in that language:
 
 <!-- big-table:start -->
-**Larger run, 363 messages per language.** The 324 labelled messages in [`train/pool_eval.jsonl`](train/pool_eval.jsonl) plus the 39-message fresh held-out set, so one message is now under 0.3 points. The pool was used to tune the Chinese prompt's rules, which every language shares, so the absolute numbers are a little optimistic; the comparison between languages is fair. This run is still going: 8 of 13 languages are done, and the others have only the 39-message results in the next table.
+**Larger run, 363 messages per language.** The 324 labelled messages in [`train/pool_eval.jsonl`](train/pool_eval.jsonl) plus the 39-message fresh held-out set, so one message is now under 0.3 points. The pool was used to tune the Chinese prompt's rules, which every language shares, so the absolute numbers are a little optimistic; the comparison between languages is fair.
 
 | Explanations in | Reading, 363 messages | 95% interval | Fresh held-out (39) | Check before you send (26) | Explanations in that language |
 |---|---|---|---|---|---|
@@ -106,8 +106,13 @@ The other explanation languages are built from the English prompt by [`scripts/m
 | French | **79%** (287/363) | 75–83% | 32/39 | 23/26 | 390/390 |
 | Portuguese | **77%** (281/363) | 73–81% | 26/39 | 21/26 | 390/390 |
 | German | **74%** (267/363) | 69–78% | 31/39 | 23/26 | 390/390 |
+| Russian | **79%** (286/363) | 74–83% | 30/39 | 25/26 | 390/390 |
+| Arabic | **78%** (282/363) | 73–82% | 33/39 | 23/26 | 390/390 |
+| Hindi | **75%** (274/363) | 71–80% | 27/39 | 22/26 | 388/390 |
+| Indonesian | **77%** (280/363) | 73–81% | 33/39 | 24/26 | 390/390 |
 | Japanese | **71%** (257/363) | 66–75% | 27/39 | 24/26 | 390/390 |
 | Korean | **76%** (275/362) | 71–80% | 29/38 | 21/26 | 389/389 |
+| Vietnamese | **73%** (264/363) | 68–77% | 30/39 | 23/26 | 386/390 |
 
 Languages whose intervals overlap can't be told apart at this size.
 <!-- big-table:end -->
@@ -132,8 +137,9 @@ Languages whose intervals overlap can't be told apart at this size.
 
 How to read this:
 
-- **Run-to-run noise is about two messages.** The Chinese and English reading rows are a second run of the same prompts as the table above, and moved by one and two messages (32 → 33, 30 → 32). On 39 messages one message is 2.6 points, so most of the spread between languages is noise. Portuguese, Hindi and Japanese came out lowest in this run. The draft rows were run after one draft example stopped repeating a price in its rewrite (the model had been copying "$3.50" into unrelated replies); Spanish scored 23/26 before that change and 20/26 after.
-- **The model always answered in the requested language** (one Korean answer failed to parse, so it has 65 instead of 66).
+- **On 363 messages, 11 of the 13 languages land between 74% and 79%**, within each other's intervals. Japanese (71%) and Vietnamese (73%) are lowest; Japanese is the only one whose interval barely reaches the top group, so it is probably a little weaker. The big swings on 39 messages were mostly noise: Portuguese went from 67% to 77%, Spanish from 74% to 77%.
+- **Run-to-run noise on 39 messages is about two messages.** The Chinese and English reading rows are a second run of the same prompts as the first table in this section, and moved by one and two messages (32 → 33, 30 → 32). On 39 messages one message is 2.6 points, so most of the spread between languages is noise. Portuguese, Hindi and Japanese came out lowest in this run. The draft rows were run after one draft example stopped repeating a price in its rewrite (the model had been copying "$3.50" into unrelated replies); Spanish scored 23/26 before that change and 20/26 after.
+- **The model almost always answered in the requested language.** In the larger run, 4 of 324 Vietnamese explanations slipped a few Chinese words into the sentence (Qwen is trained heavily on Chinese), and 2 Hindi ones contained a stray letter from another script. One Korean answer failed to parse.
 - **The example translations were machine-written for this project and haven't been checked by native speakers.** Treat the less common languages as a first version, and corrections to `presets/languages/*.json` are welcome.
 - **No language was fine-tuned.** The prompted model beat our fine-tuned ones on new messages (see below), so new languages are added through prompts.
 
